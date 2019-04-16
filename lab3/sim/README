@@ -1,0 +1,27 @@
+LAB 3 - Universal Verification Methodology
+
+make all : To run the given uvm_test, which generates 100 input sequences randomly and applies them to the DUT. This does not fire the GUI.
+
+make gui : Fires the same test as above, however alongside the GUI
+
+make clean : Removes the work directory and the transcript
+
+default test case runs for cases where rst always high
+
+vsim -c top +UVM_TESTNAME=logic_test
+-geneate test cases for all logic operation 
+
+vsim -c top +UVM_TESTNAME=shift_test
+-geneate test cases for all shift operation 
+
+vsim -c top +UVM_TESTNAME=arith_test
+-geneate test cases for all arith operation 
+
+vsim -c top +UVM_TESTNAME=comp_eq_test
+-geneate test cases for all arith operation (A == B)
+
+vsim -c top +UVM_TESTNAME=comp_le_test
+-geneate test cases for all compare operation (A <= B)
+
+vsim -c top +UVM_TESTNAME=comp_ge_test
+-geneate test cases for all compare operation (A >= B)

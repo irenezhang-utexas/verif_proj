@@ -1,0 +1,39 @@
+i_cache:
+assign tag_address      = read_miss_fill     ? miss_address      [CACHE_ADDR32_MSB:CACHE_ADDR32_LSB] :
+                          source_sel[C_INIT] ? init_count[CACHE_ADDR_WIDTH-1:0]                      :
+                                               address                                               ;
+ 
+assign tag_wenable_way[i]  = tag_wenable && ( select_way[i] || source_sel[C_INIT] );
+
+assign dummy_i = {1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,tag_wdata[20:0]} ; // for spatial locality
+
+assign tag_rdata_way[i] = dummy_o[20:0];
+
+
+
+        assign data_hit_way[i]     = tag_rdata_way[i][TAG_WIDTH-1] &&                                                  
+                                     tag_rdata_way[i][TAG_ADDR_WIDTH-1:0] == i_address[31:TAG_ADDR32_LSB] &&  
+                                     c_state == CS_IDLE;                                                               
+ 
+assign idle_hit         = |data_hit_way;
+
+    assign hit_rdata    = data_hit_way[0] ? data_rdata_way[0] :
+                          data_hit_way[1] ? data_rdata_way[1] :
+                                     {CACHE_LINE_WIDTH{1'd1}} ;  // all 1's for debug
+ 
+assign o_read_data      = wb_hit                                       ? i_wb_read_data     :
+                          i_address[WORD_SEL_MSB:WORD_SEL_LSB] == 2'd0 ? hit_rdata [31:0]   :
+                          i_address[WORD_SEL_MSB:WORD_SEL_LSB] == 2'd1 ? hit_rdata [63:32]  :
+                          i_address[WORD_SEL_MSB:WORD_SEL_LSB] == 2'd2 ? hit_rdata [95:64]  :
+                                                                         hit_rdata [127:96] ;
+assign read_miss        = enable && !idle_hit && !invalid_read;
+
+assign read_stall       = enable && !idle_hit && !rbuf_hit && !wb_hit;
+
+assign o_wb_req         = read_miss && c_state == CS_IDLE;
+
+                    c_state <= CS_FILL0; 
+
+assign fill_state       = c_state == CS_FILL0 || c_state == CS_FILL1 || c_state == CS_FILL2 || c_state == CS_FILL3 ;
+ 
+        miss_address <= i_address;
