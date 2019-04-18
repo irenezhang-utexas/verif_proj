@@ -11,8 +11,7 @@ package sequences;
         rand logic [15:0] 	i_wb_adr_lo;
         rand logic		i_wb_we;
         rand logic 		i_wb_stb;
-	rand logic		start_bit;
-	rand logic	 	serial_bit;
+	rand logic		i_uart_rxd;
 
 	// wb addr is uart addr
         constraint uart_addr {
@@ -21,14 +20,13 @@ package sequences;
    
 	// constraint to disable ; used to test fifo full
 	constraint fifo_empty {
-		i_wb_stb dist {0:= , 1:= 1};
+		i_uart_rxd == 1'b0;
 	}
 
 	// constraint to disable uart_stb; used to test fifo full
 	constraint fifo_full {
 		i_wb_stb == 1'b0;
 	}
-
 
         function new(string name = "");
             super.new(name);
