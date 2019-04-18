@@ -20,6 +20,7 @@ class alu_driver_in extends uvm_driver#(alu_transaction_in);
     `uvm_component_utils(alu_driver_in)
 
     alu_dut_config dut_config_0;
+    logic [2:0]    rx_cnt;
     virtual dut_in dut_vi_in;
 
     function new(string name, uvm_component parent);
@@ -29,6 +30,7 @@ class alu_driver_in extends uvm_driver#(alu_transaction_in);
     function void build_phase(uvm_phase phase);
        assert( uvm_config_db #(alu_dut_config)::get(this, "", "dut_config", dut_config_0));
        dut_vi_in = dut_config_0.dut_vi_in;
+       rx_cnt	 = 3'b0;
     endfunction : build_phase
    
     task run_phase(uvm_phase phase);
@@ -36,16 +38,16 @@ class alu_driver_in extends uvm_driver#(alu_transaction_in);
       begin
         alu_transaction_in tx;
         
-        @(posedge dut_vi_in.clk);
+        @(posedge dut_vi_in.i_clk);
         seq_item_port.get(tx);
         
-        // TODO: Drive values from alu_transaction_in onto the virtual
         // interface of dut_vi_in
-	dut_vi_in.rst	 = tx.rst;
-	dut_vi_in.CIN 	 = tx.CIN;
-	dut_vi_in.opcode = tx.opcode;
-	dut_vi_in.A 	 = tx.A;
-	dut_vi_in.B	 = tx.B;
+	dut_vi_in.i_wb_adr	= tx.i_wb_adr;
+	dut_vi_in.i_wb_we	= tx.i_wb_we;
+	dut_vi_in.i_wb_stb	= tx.i_wb_stb;
+	dut_vi_in.i_uart_rxd 	= (rx_st == ) ? 1'b1  	      :
+				  (rx_st == ) ? tx.serial_bit : tx.start_bit; 
+
 
       end
     endtask: run_phase

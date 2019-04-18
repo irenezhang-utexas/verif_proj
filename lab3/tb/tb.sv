@@ -11,20 +11,20 @@ module dut(dut_in _in, dut_out _out);
 uart uart_dut(
 	.i_clk		(_in.i_clk),
 
-	.i_wb_adr	(_in.i_wb_adr),
-	.i_wb_sel	(_in.i_wb_sel),
-	.i_wb_we	(_in.i_wb_we),
-	.o_wb_dat	(_out.o_wb_dat),
-	.i_wb_dat	(_in.i_wb_dat),
-	.i_wb_cyc	(_in.i_wb_cyc),
-	.i_wb_stb	(_in.i_wb_stb),
-	.o_wb_ack	(_out.o_wb_ack),
-	.o_wb_err	(_out.o_wb_err),
+	.i_wb_adr	(_in.i_wb_adr),		// w/r addr
+	.i_wb_sel	(_in.i_wb_sel),		// not used
+	.i_wb_we	(_in.i_wb_we),		// write enable
+	.o_wb_dat	(_out.o_wb_dat),	// read data
+	.i_wb_dat	(_in.i_wb_dat),		// write data
+	.i_wb_cyc	(_in.i_wb_cyc),		// not used
+	.i_wb_stb	(_in.i_wb_stb),		// wb pre-cyle strobe
+	.o_wb_ack	(_out.o_wb_ack), 	// uart ack to wb
+	.o_wb_err	(_out.o_wb_err),	// == 1'b0
 
-	.i_uart_cts_n	(_in.i_uart_cts_n),
-	.o_uart_txd	(_out.o_uart_txd),
-	.o_uart_rts_n	(_out.o_uart_rts_n),
-	.i_uart_rxd	(_in.i_uart_rxd)
+	.i_uart_cts_n	(_in.i_uart_cts_n), 	// tx
+	.o_uart_txd	(_out.o_uart_txd), 	// tx serial send
+	.o_uart_rts_n	(_out.o_uart_rts_n), 	// for rx, ack wb to pop fifo
+	.i_uart_rxd	(_in.i_uart_rxd) 	// rx serial receive
 
 );
 endmodule: dut
