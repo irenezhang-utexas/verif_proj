@@ -7,15 +7,15 @@ package sequences;
     class alu_transaction_in extends uvm_sequence_item;
 	`uvm_object_utils(alu_transaction_in);
 
-        rand logic [15:0] 	i_wb_adr_hi;
-        rand logic [15:0] 	i_wb_adr_lo;
+        rand logic [15:0] 	i_wb_addr_hi;
+        rand logic [15:0] 	i_wb_addr_lo;
         rand logic		i_wb_we;
         rand logic 		i_wb_stb;
 	rand logic		i_uart_rxd;
 
 	// wb addr is uart addr
         constraint uart_addr {
-		i_wb_adr_hi dist {AMBER_UART_DR := 40, [1:65535] := 50};
+		i_wb_addr_lo dist {AMBER_UART_DR := 40, [1:65535] := 50};
 	} 
    
 	// constraint to disable ; used to test fifo full
@@ -33,7 +33,7 @@ package sequences;
         endfunction: new
 
         function string convert2string;
-            convert2string={$sformatf("wb_addr: %b, wb_we: %b, wb_stb: %b, uart_rxd: %b, start_bit: %b, seial_bit: %b",i_wb_adr,i_wb_we,i_wb_stb,i_uart_rxd,start_bit,serial_bit)};
+            convert2string={$sformatf("wb_addr: %b, wb_we: %b, wb_stb: %b, uart_rxd: %b\n",{i_wb_addr_hi,i_wb_addr_lo},i_wb_we,i_wb_stb,i_uart_rxd)};
         endfunction: convert2string
 
     endclass: alu_transaction_in
@@ -75,7 +75,8 @@ package sequences;
             	tx=alu_transaction_in::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.uart_addr.constraint_mode(0); 
+	    	tx.fifo_full.constraint_mode(0); 
+	    	tx.fifo_empty.constraint_mode(0); 
 
             	assert(tx.randomize());
             	finish_item(tx);
@@ -91,7 +92,8 @@ package sequences;
             	tx=alu_transaction_in::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.uart_addr.constraint_mode(0); 
+	    	tx.fifo_full.constraint_mode(1); 
+	    	tx.fifo_empty.constraint_mode(0); 
 
             	assert(tx.randomize());
             	finish_item(tx);
@@ -107,7 +109,8 @@ package sequences;
             	tx=alu_transaction_in::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.uart_addr.constraint_mode(0); 
+	    	tx.fifo_full.constraint_mode(0); 
+	    	tx.fifo_empty.constraint_mode(1); 
 
             	assert(tx.randomize());
             	finish_item(tx);
@@ -123,7 +126,8 @@ package sequences;
             	tx=alu_transaction_in::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.uart_addr.constraint_mode(0); 
+	    	tx.fifo_full.constraint_mode(0); 
+	    	tx.fifo_empty.constraint_mode(0); 
 
             	assert(tx.randomize());
             	finish_item(tx);

@@ -20,7 +20,6 @@ class alu_driver_in extends uvm_driver#(alu_transaction_in);
     `uvm_component_utils(alu_driver_in)
 
     alu_dut_config dut_config_0;
-    logic [2:0]    rx_cnt;
     virtual dut_in dut_vi_in;
 
     function new(string name, uvm_component parent);
@@ -30,7 +29,6 @@ class alu_driver_in extends uvm_driver#(alu_transaction_in);
     function void build_phase(uvm_phase phase);
        assert( uvm_config_db #(alu_dut_config)::get(this, "", "dut_config", dut_config_0));
        dut_vi_in = dut_config_0.dut_vi_in;
-       rx_cnt	 = 3'b0;
     endfunction : build_phase
    
     task run_phase(uvm_phase phase);
@@ -42,12 +40,10 @@ class alu_driver_in extends uvm_driver#(alu_transaction_in);
         seq_item_port.get(tx);
         
         // interface of dut_vi_in
-	dut_vi_in.i_wb_adr	= tx.i_wb_adr;
+	dut_vi_in.i_wb_adr	= {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
 	dut_vi_in.i_wb_we	= tx.i_wb_we;
 	dut_vi_in.i_wb_stb	= tx.i_wb_stb;
-	dut_vi_in.i_uart_rxd 	= (rx_st == ) ? 1'b1  	      :
-				  (rx_st == ) ? tx.serial_bit : tx.start_bit; 
-
+	dut_vi_in.i_uart_rxd 	= tx.i_uart_rxd;
 
       end
     endtask: run_phase
@@ -82,13 +78,16 @@ class alu_monitor_in extends uvm_monitor;
         alu_transaction_in tx;
         @(posedge dut_vi_in.clk);
         tx = alu_transaction_in::type_id::create("tx");
-        // TODO: Read the values from the virtual interface of dut_vi_in and
         // assign them to the transaction "tx"
-	tx.rst		= dut_vi_in.rst;
-	tx.opcode	= dut_vi_in.opcode;
-	tx.CIN		= dut_vi_in.CIN;
-	tx.A		= dut_vi_in.A;
-	tx.B		= dut_vi_in.B;
+	tx.i_clk	= dut_vi_in.i_clk;
+	tx.i_wb_adr	= dut_vi_in.i_wb_adr;
+	tx.i_wb_sel	= dut_vi_in.i_wb_sel;
+	tx.i_wb_we	= dut_vi_in.i_wb_we;
+	tx.i_wb_dat	= dut_vi_in.i_wb_dat;
+	tx.i_wb_cyc	= dut_vi_in.i_wb_cyc;
+	tx.i_wb_stb	= dut_vi_in.i_wb_stb;
+	tx.i_uart_cts_n	= dut_vi_in.i_uart_cts_n;
+	tx.i_uart_rxd	= dut_vi_in.i_uart_rxd;
 	
         aport.write(tx);
       end
@@ -129,9 +128,13 @@ class alu_monitor_out extends uvm_monitor;
         tx = alu_transaction_out::type_id::create("tx");
         // TODO: Read the values from the virtual interface of dut_vi_out and
         // assign them to the transaction "tx"
-	tx.COUT		= dut_vi_out.COUT;
-	tx.VOUT		= dut_vi_out.VOUT;
-	tx.OUT		= dut_vi_out.OUT;
+	tx.i_clk	= dut_vi_out.i_clk;
+	tx.o_wb_dat	= dut_vi_out.o_wb_dat;
+	tx.o_wb_ack	= dut_vi_out.o_wb_ack;
+	tx.o_wb_err	= dut_vi_out.o_wb_err;
+	tx.o_uart_txd	= dut_vi_out.o_uart_txd;
+	tx.o_uart_rts_n = dut_vi_out.o_uart_rts_n;
+
         aport.write(tx);
       end
     endtask: run_phase
