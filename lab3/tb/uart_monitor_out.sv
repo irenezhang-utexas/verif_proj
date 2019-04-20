@@ -1,10 +1,3 @@
-class uart_dut_config extends uvm_object;
-    `uvm_object_utils(uart_dut_config)
-
-    virtual uart_in dut_vi_in;
-    virtual uart_out dut_vi_out;
-endclass
-
 class uart_monitor_out extends uvm_monitor;
     `uvm_component_utils(uart_monitor_out)
 
