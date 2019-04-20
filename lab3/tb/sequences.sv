@@ -4,7 +4,7 @@ package sequences;
 
     import uvm_pkg::*;
 
-    class alu_transaction_in extends uvm_sequence_item;
+    class wb2uart extends uvm_sequence_item;
 	`uvm_object_utils(alu_transaction_in);
 
         rand logic [15:0] 	i_wb_addr_hi;
@@ -30,7 +30,7 @@ package sequences;
             convert2string={$sformatf("wb_addr: %b, wb_we: %b, wb_stb: %b\n",{i_wb_addr_hi,i_wb_addr_lo},i_wb_we,i_wb_stb)};
         endfunction: convert2string
 
-    endclass: alu_transaction_in
+    endclass: wb2uart
 
 
     class uart_frame extends uvm_sequence_item;
@@ -56,7 +56,7 @@ package sequences;
 
     endclass: uart_frame
 
-    class alu_transaction_out extends uvm_sequence_item;
+    class uart2wb extends uvm_sequence_item;
         // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
 	`uvm_object_utils(alu_transaction_out);
 
@@ -72,7 +72,7 @@ package sequences;
             convert2string={$sformatf("o_uart_rts_n: %b, o_wb_ack: %b\no_wb_dat: %b",o_uart_rts_n,o_wb_ack,o_wb_dat)};
         endfunction: convert2string
 
-    endclass: alu_transaction_out
+    endclass: uart2wb
 
     class rx_seq extends uvm_sequence #(alu_transaction_in);
         `uvm_object_utils(rx_seq)
