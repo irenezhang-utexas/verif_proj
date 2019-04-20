@@ -11,18 +11,12 @@ package sequences;
         rand logic [15:0] 	i_wb_addr_lo;
         rand logic		i_wb_we;
         rand logic 		i_wb_stb;
-	rand logic		i_uart_rxd;
 
 	// wb addr is uart addr
         constraint uart_addr {
 		i_wb_addr_lo dist {AMBER_UART_DR := 40, [1:65535] := 50};
 	} 
    
-	// constraint to disable ; used to test fifo full
-	constraint fifo_empty {
-		i_uart_rxd == 1'b0;
-	}
-
 	// constraint to disable uart_stb; used to test fifo full
 	constraint fifo_full {
 		i_wb_stb == 1'b0;
@@ -33,11 +27,34 @@ package sequences;
         endfunction: new
 
         function string convert2string;
-            convert2string={$sformatf("wb_addr: %b, wb_we: %b, wb_stb: %b, uart_rxd: %b\n",{i_wb_addr_hi,i_wb_addr_lo},i_wb_we,i_wb_stb,i_uart_rxd)};
+            convert2string={$sformatf("wb_addr: %b, wb_we: %b, wb_stb: %b\n",{i_wb_addr_hi,i_wb_addr_lo},i_wb_we,i_wb_stb)};
         endfunction: convert2string
 
     endclass: alu_transaction_in
 
+
+    class uart_frame extends uvm_sequence_item;
+
+	rand bit start_bit;
+	rand bit [7:0] payload;
+	rand bit [1:0] stop_bits;
+
+  	// Default constraints  //lab1_note2
+	constraint default_start_bit 	{ start_bit == 1'b0;}
+	constraint default_stop_bits 	{ stop_bits == 2'b11;}
+	constraint fifo_empty 		{ start_bit == 1'b1;}
+
+  	`uvm_object_utils_begin(uart_frame)
+    	    `uvm_field_int(start_bit, UVM_DEFAULT)
+    	    `uvm_field_int(payload, UVM_DEFAULT)
+    	    `uvm_field_int(stop_bits, UVM_DEFAULT)
+	`uvm_object_utils_end
+
+	function new(string name = "uart_frame");
+	    super.new(name);
+	endfunction
+
+    endclass: uart_frame
 
     class alu_transaction_out extends uvm_sequence_item;
         // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
