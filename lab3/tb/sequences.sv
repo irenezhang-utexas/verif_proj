@@ -37,7 +37,7 @@ package sequences;
 
 	rand bit start_bit;
 	rand bit [7:0] payload;
-	rand bit [1:0] stop_bits;
+	rand bit stop_bits;
 
   	// Default constraints  //lab1_note2
 	constraint default_start_bit 	{ start_bit == 1'b0;}
@@ -60,7 +60,7 @@ package sequences;
         // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
 	`uvm_object_utils(alu_transaction_out);
 
-	logic		i_clk;
+	    logic		i_clk;
         logic [31:0] 	o_wb_dat;
         logic		o_wb_ack;
         logic 		o_uart_rts_n;
@@ -79,7 +79,7 @@ package sequences;
         // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
 	`uvm_object_utils(alu_transaction_out);
 
-	logic		i_uart_clk;
+	    logic		i_uart_clk;
         logic		o_uart_txd;
         logic 		o_uart_rts_n;
 
