@@ -33,7 +33,7 @@ package sequences;
     endclass: wb2uart
 
 
-    class uart_frame extends uvm_sequence_item;
+    class uart_rx_frame extends uvm_sequence_item;
 
 	rand bit start_bit;
 	rand bit [7:0] payload;
@@ -60,6 +60,7 @@ package sequences;
         // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
 	`uvm_object_utils(alu_transaction_out);
 
+	logic		i_clk;
         logic [31:0] 	o_wb_dat;
         logic		o_wb_ack;
         logic 		o_uart_rts_n;
@@ -73,6 +74,25 @@ package sequences;
         endfunction: convert2string
 
     endclass: uart2wb
+
+    class uart_tx_frame extends uvm_sequence_item;
+        // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
+	`uvm_object_utils(alu_transaction_out);
+
+	logic		i_uart_clk;
+        logic		o_uart_txd;
+        logic 		o_uart_rts_n;
+
+        function new(string name = "");
+            super.new(name);
+        endfunction: new;
+        
+        function string convert2string;
+            convert2string={$sformatf("o_uart_rts_n: %b, o_wb_ack: %b\no_wb_dat: %b",o_uart_rts_n,o_wb_ack,o_wb_dat)};
+        endfunction: convert2string
+
+    endclass: uart2wb
+
 
     class rx_seq extends uvm_sequence #(alu_transaction_in);
         `uvm_object_utils(rx_seq)
