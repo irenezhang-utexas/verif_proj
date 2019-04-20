@@ -6,7 +6,10 @@ import sequences::*;
 import coverage::*;
 import scoreboard::*;
 
-typedef uvm_sequencer #(alu_transaction_in) amber25_sequencer_in;
+typedef uvm_sequencer #(uart_rx_frame) rx_frame_sequencer;
+typedef uvm_sequencer #(uart_tx_frame) tx_frame_sequencer;
+typedef uvm_sequencer #(uart2wb) uart2wb_sequencer_in;
+typedef uvm_sequencer #(wb2uart) wb2uart_sequencer_in;
 
 class uart_dut_config extends uvm_object;
     `uvm_object_utils(uart_dut_config)
@@ -58,8 +61,8 @@ class uart_driver_in extends uvm_driver#(alu_transaction_in);
 endclass: uart_driver_in
 
 
-class amber_driver_in extends uvm_driver#(alu_transaction_in);
-    `uvm_component_utils(amber_driver_in)
+class wb2uart_driver extends uvm_driver#(alu_transaction_in);
+    `uvm_component_utils(wb2uart_driver)
 
     amber_dut_config dut_config_0;
     virtual dut_in dut_vi_in;
@@ -76,7 +79,7 @@ class amber_driver_in extends uvm_driver#(alu_transaction_in);
     task run_phase(uvm_phase phase);
       forever
       begin
-        alu_transaction_in tx;
+        wb2uart tx;
         
         @(posedge dut_vi_in.i_clk);
         seq_item_port.get(tx);
@@ -89,7 +92,7 @@ class amber_driver_in extends uvm_driver#(alu_transaction_in);
       end
     endtask: run_phase
 
-endclass: amber_driver_in
+endclass: wb2uart_driver
 
 class uart_monitor_in extends uvm_monitor;
     `uvm_component_utils(uart_monitor_in)
@@ -130,10 +133,10 @@ class uart_monitor_in extends uvm_monitor;
 endclass: uart_monitor_in
 
 
-class alu_monitor_in extends uvm_monitor;
-    `uvm_component_utils(alu_monitor_in)
+class wb2uart_monitor extends uvm_monitor;
+    `uvm_component_utils(wb2uart_monitor)
 
-    uvm_analysis_port #(alu_transaction_in) aport;
+    uvm_analysis_port #(wb2uart) aport;
 
     amber_dut_config dut_config_0;
 
@@ -155,25 +158,21 @@ class alu_monitor_in extends uvm_monitor;
     @(posedge dut_vi_in.clk);
       forever
       begin
-        alu_transaction_in tx;
+        wb2uart tx;
         @(posedge dut_vi_in.clk);
-        tx = alu_transaction_in::type_id::create("tx");
+        tx = wb2uart::type_id::create("tx");
         // assign them to the transaction "tx"
 	tx.i_clk	= dut_vi_in.i_clk;
 	tx.i_wb_adr	= dut_vi_in.i_wb_adr;
-	tx.i_wb_sel	= dut_vi_in.i_wb_sel;
 	tx.i_wb_we	= dut_vi_in.i_wb_we;
 	tx.i_wb_dat	= dut_vi_in.i_wb_dat;
-	tx.i_wb_cyc	= dut_vi_in.i_wb_cyc;
 	tx.i_wb_stb	= dut_vi_in.i_wb_stb;
-	tx.i_uart_cts_n	= dut_vi_in.i_uart_cts_n;
-	tx.i_uart_rxd	= dut_vi_in.i_uart_rxd;
 	
         aport.write(tx);
       end
     endtask: run_phase
 
-endclass: alu_monitor_in
+endclass: wb2uart_monitor
 
 
 class uart_monitor_out extends uvm_monitor;
@@ -217,10 +216,10 @@ class uart_monitor_out extends uvm_monitor;
 endclass: uart_monitor_out
 
 
-class alu_monitor_out extends uvm_monitor;
-    `uvm_component_utils(alu_monitor_out)
+class uart2wb_monitor extends uvm_monitor;
+    `uvm_component_utils(uart2wb_monitor)
 
-    uvm_analysis_port #(alu_transaction_out) aport;
+    uvm_analysis_port #(uart2wb) aport;
 
     amber_dut_config dut_config_0;
 
@@ -243,11 +242,10 @@ class alu_monitor_out extends uvm_monitor;
     @(posedge dut_vi_out.clk);
       forever
       begin
-        alu_transaction_out tx;
+        uart2wb tx;
         
         @(posedge dut_vi_out.clk);
-        tx = alu_transaction_out::type_id::create("tx");
-        // TODO: Read the values from the virtual interface of dut_vi_out and
+        tx = uart2wb::type_id::create("tx");
         // assign them to the transaction "tx"
 	tx.i_clk	= dut_vi_out.i_clk;
 	tx.o_wb_dat	= dut_vi_out.o_wb_dat;
@@ -257,37 +255,45 @@ class alu_monitor_out extends uvm_monitor;
         aport.write(tx);
       end
     endtask: run_phase
-endclass: alu_monitor_out
+endclass: uart2wb_monitor
 
 class alu_agent_in extends uvm_agent;
     `uvm_component_utils(alu_agent_in)
 
-    uvm_analysis_port #(alu_transaction_in) aport;
+    uvm_analysis_port #(wb2uart) aport;
+    uvm_analysis_port #(uart_rx_frame) bport;
 
-    amber25_sequencer_in amber25_sequencer_in_h;
-    amber_driver_in amber_driver_in_h;
+    wb2uart_sequencer_in wb2uart_sequencer_in_h;
+    rx_frame_sequencer_in rx_frame_sequencer_in_h;
+
+    wb2uart_driver wb2uart_driver_h;
+    wb2uart_monitor wb2uart_monitor_h;
+
     uart_driver_in uart_driver_in_h;
-    alu_monitor_in alu_monitor_in_h;
     uart_monitor_in uart_monitor_in_h;
 
     function new(string name, uvm_component parent);
         super.new(name,parent);
     endfunction: new
 
-
     function void build_phase(uvm_phase phase);
         aport=new("aport",this);
-        amber25_sequencer_in_h=amber25_sequencer_in::type_id::create("amber25_sequencer_in_h",this);
-        amber_driver_in_h=amber_driver_in::type_id::create("amber_driver_in_h",this);
-        uart_driver_in_h=amber_driver_in::type_id::create("uart_driver_in_h",this);
-        alu_monitor_in_h=alu_monitor_in::type_id::create("alu_monitor_in_h",this);
-        uart_monitor_in_h=uart_monitor_in::type_id::create("alu_monitor_in_h",this);
+        bport=new("aport",this);
+
+        wb2uart_sequencer_in_h=wb2uart_sequencer_in::type_id::create("wb2uart_sequencer_in_h",this);
+        rx_frame_sequencer_in_h=rx_frame_sequencer_in::type_id::create("rx_frame_sequencer_in_h",this);
+
+        wb2uart_driver_h=wb2uart_driver::type_id::create("wb2uart_driver_h",this);
+        wb2uart_monitor_h=wb2uart_monitor::type_id::create("wb2uart_monitor_in_h",this);
+
+        uart_driver_in_h=uart_driver_in::type_id::create("uart_driver_in_h",this);
+        uart_monitor_in_h=uart_monitor_in::type_id::create("uart_monitor_in_h",this);
     endfunction: build_phase
 
     function void connect_phase(uvm_phase phase);
-        amber_driver_in_h.seq_item_port.connect(amber25_sequencer_in_h.seq_item_export);
-        uart_driver_in_h.seq_item_port.connect(amber25_sequencer_in_h.seq_item_export);
-        alu_monitor_in_h.aport.connect(aport);
+        wb2uart_driver_in_h.seq_item_port.connect(wb2uart_sequencer_in_h.seq_item_export);
+        uart_driver_in_h.seq_item_port.connect(rx_frame_sequencer_in_h.seq_item_export);
+        wb2uart_monitor_in_h.aport.connect(aport);
         uart_monitor_in_h.aport.connect(aport);
     endfunction: connect_phase
 
