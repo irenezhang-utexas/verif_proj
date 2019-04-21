@@ -3,8 +3,7 @@ class env extends uvm_env;
 
     agent_in agent_in_h;
     agent_out agent_out_h;
-    alu_subscriber_in alu_subscriber_in_h;
-    alu_subscriber_out alu_subscriber_out_h;
+    wb2uart_subscriber wb2uart_subscriber_h;
     UART_scoreboard uart_scoreboard_h;
 
     function new(string name, uvm_component parent);
@@ -14,14 +13,13 @@ class env extends uvm_env;
     function void build_phase(uvm_phase phase);
         agent_in_h = agent_in::type_id::create("agent_in_h",this);
         agent_out_h = agent_out::type_id::create("agent_out_h",this);
-        alu_subscriber_in_h = alu_subscriber_in::type_id::create("alu_subscriber_in_h",this);
-        alu_subscriber_out_h = alu_subscriber_out::type_id::create("alu_subscriber_out_h",this);
+        wb2uart_subscriber_h = wb2uart_subscriber::type_id::create("wb2uart_subscriber_in_h",this);
         uart_scoreboard_h = UART_scoreboard::type_id::create("uart_scoreboard_h",this);
     endfunction: build_phase
 
     function void connect_phase(uvm_phase phase);
-        agent_in_h.aport.connect(alu_subscriber_in_h.analysis_export);
-        agent_out_h.aport.connect(alu_subscriber_out_h.analysis_export);
+        agent_in_h.aport.connect(wb2uart_subscriber_h.analysis_export);
+
 
         
         agent_in_h.aport.connect(uart_scoreboard_h.sb_in_1);
