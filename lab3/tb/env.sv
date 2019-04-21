@@ -24,8 +24,13 @@ class env extends uvm_env;
         agent_out_h.aport.connect(alu_subscriber_out_h.analysis_export);
 
         
-        agent_in_h.aport.connect(alu_scoreboard_h.sb_in);
-        agent_out_h.aport.connect(alu_scoreboard_h.sb_out);
+        agent_in_h.aport.connect(uart_scoreboard_h.sb_in_1);
+        agent_out_h.aport.connect(uart_scoreboard_h.sb_out_1);
+
+
+        agent_in_h.bport.connect(uart_scoreboard_h.sb_in_2);
+        agent_out_h.bport.connect(uart_scoreboard_h.sb_out_2);
+
     endfunction: connect_phase
 
     function void start_of_simulation_phase(uvm_phase phase);

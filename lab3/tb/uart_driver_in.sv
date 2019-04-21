@@ -1,5 +1,9 @@
+
 //Get a Uart frame and transfer it it to serialized data
 class uart_driver_in extends uvm_driver#(uart_rx_frame);
+
+
+
     `uvm_component_utils(uart_driver_in)
 
     uart_dut_config dut_config_0;
@@ -14,6 +18,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
        uart_vi_in = dut_config_0.uart_vi_in;
     endfunction : build_phase
    
+
 
     task uart_driver_in::run_phase(uvm_phase phase);
         fork

@@ -1,7 +1,9 @@
+
 class uart_monitor_in extends uvm_monitor;
     `uvm_component_utils(uart_monitor_in)
 
     uvm_analysis_port #(uart_rx_frame) aport;
+
 
     uart_dut_config dut_config_0;
 
@@ -17,6 +19,7 @@ class uart_monitor_in extends uvm_monitor;
         aport=new("aport",this);
 
         assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", dut_config_0) );
+
         uart_vi_in=dut_config_0.uart_vi_in;
 
     endfunction: build_phase
@@ -26,6 +29,7 @@ class uart_monitor_in extends uvm_monitor;
     @(posedge uart_vi_in.i_uart_clk);
       forever
       begin
+
         uart_rx_frame frame;
         frame = uart_rx_frame::type_id::create("frame");
 
@@ -57,3 +61,4 @@ class uart_monitor_in extends uvm_monitor;
     endtask: run_phase
 
 endclass: uart_monitor_in
+

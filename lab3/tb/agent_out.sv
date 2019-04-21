@@ -21,8 +21,9 @@ class agent_out extends uvm_agent;
     endfunction: build_phase
 
     function void connect_phase(uvm_phase phase);
-        uart2wb_monitor_out_h.aport.connect(aport);
-        uart_monitor_out_h.aport.connect(bport);  
+        uart_monitor_out_h.aport.connect(aport); 
+        uart2wb_monitor_out_h.aport.connect(bport);
+         
     endfunction: connect_phase
 
 endclass: agent_out

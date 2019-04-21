@@ -5,10 +5,11 @@ package sequences;
     import uvm_pkg::*;
 
     class wb2uart extends uvm_sequence_item;
-	`uvm_object_utils(alu_transaction_in);
+	`uvm_object_utils(wb2uart);
 
         rand logic [15:0] 	i_wb_addr_hi;
         rand logic [15:0] 	i_wb_addr_lo;
+	rand logic [31:0]	i_wb_dat;
         rand logic		i_wb_we;
         rand logic 		i_wb_stb;
 
@@ -63,7 +64,7 @@ package sequences;
 	    logic		i_clk;
         logic [31:0] 	o_wb_dat;
         logic		o_wb_ack;
-        logic 		o_uart_rts_n;
+        logic 		o_wb_err;
 
         function new(string name = "");
             super.new(name);

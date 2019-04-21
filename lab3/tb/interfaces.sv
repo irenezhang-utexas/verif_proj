@@ -2,10 +2,8 @@ interface dut_in;
     logic           	i_clk;
 
     logic   [31:0]	i_wb_adr;
-    logic   [3:0]   	i_wb_sel;
     logic		i_wb_we;
     logic   [31:0]  	i_wb_dat;
-    logic		i_wb_cyc;
     logic		i_wb_stb;
 
 endinterface: dut_in
