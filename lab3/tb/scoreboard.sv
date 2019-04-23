@@ -3,177 +3,114 @@ package scoreboard;
 import uvm_pkg::*;
 import sequences::*;
 
-class alu_scoreboard extends uvm_scoreboard;
-    `uvm_component_utils(alu_scoreboard)
+class UART_scoreboard extends uvm_scoreboard;
+    `uvm_component_utils(UART_scoreboard)
+	
+	// scoreboard 1
+    uvm_analysis_export #(wb2uart) sb_in_1;
+    uvm_analysis_export #(wb2uart) sb_out_1;
 
-    uvm_analysis_export #(alu_transaction_in) sb_in;
-    uvm_analysis_export #(alu_transaction_out) sb_out;
+    uvm_tlm_analysis_fifo #(wb2uart) fifo_in_1;
+    uvm_tlm_analysis_fifo #(wb2uart) fifo_out_1;
+	
+	wb2uart tx_in_1;
+    wb2uart tx_out_1;
+	
+	// scoreboard 2
+    uvm_analysis_export #(uart_rx_frame) sb_in_2;
+    uvm_analysis_export #(uart_rx_frame) sb_out_2;
 
-    uvm_tlm_analysis_fifo #(alu_transaction_in) fifo_in;
-    uvm_tlm_analysis_fifo #(alu_transaction_out) fifo_out;
+    uvm_tlm_analysis_fifo #(uart_rx_frame) fifo_in_2;
+    uvm_tlm_analysis_fifo #(uart_rx_frame) fifo_out_2;
+	
+	uart_rx_frame tx_in_2;
+    uart_rx_frame tx_out_2;
 
-    alu_transaction_in tx_in;
-    alu_transaction_out tx_out;
 
     function new(string name, uvm_component parent);
         super.new(name,parent);
-        tx_in=new("tx_in");
-        tx_out=new("tx_out");
+        tx_in_1=new("tx_in_1");
+        tx_out_1=new("tx_out_1");
+
+        tx_in_2=new("tx_in_2");
+        tx_out_2=new("tx_out_2");
     endfunction: new
 
     function void build_phase(uvm_phase phase);
-        sb_in=new("sb_in",this);
-        sb_out=new("sb_out",this);
-        fifo_in=new("fifo_in",this);
-        fifo_out=new("fifo_out",this);
+        sb_in_1=new("sb_in_1",this);
+        sb_out_1=new("sb_out_1",this);
+        fifo_in_1=new("fifo_in_1",this);
+        fifo_out_1=new("fifo_out_1",this);
+
+        sb_in_2=new("sb_in_2",this);
+        sb_out_2=new("sb_out_2",this);
+        fifo_in_2=new("fifo_in_2",this);
+        fifo_out_2=new("fifo_out_2",this);
     endfunction: build_phase
 
     function void connect_phase(uvm_phase phase);
-        sb_in.connect(fifo_in.analysis_export);
-        sb_out.connect(fifo_out.analysis_export);
+        sb_in_1.connect(fifo_in_1.analysis_export);
+        sb_out_1.connect(fifo_out_1.analysis_export);
+
+        sb_in_2.connect(fifo_in_2.analysis_export);
+        sb_out_2.connect(fifo_out_2.analysis_export);
     endfunction: connect_phase
 
     task run();
         forever begin
-            fifo_in.get(tx_in);
-            fifo_out.get(tx_out);
-            compare();
+            fifo_in_1.get(tx_in_1);
+            fifo_out_1.get(tx_out_1);
+            compare_1();
+
+            fifo_in_2.get(tx_in_2);
+            fifo_out_2.get(tx_out_2);
+            compare_2();
         end
     endtask: run
 
-    extern virtual function [33:0] getresult; 
-    extern virtual function void compare; 
+
+ 
+    extern virtual function void compare_1; 
+    extern virtual function void compare_2; 
         
-endclass: alu_scoreboard
+endclass: UART_scoreboard
 
-function void alu_scoreboard::compare;
-    //TODO: Write this function to check whether the output of the DUT matches
-    //the spec.
-    //Use the getresult() function to get the spec output.
-    //Consider using `uvm_info(ID,MSG,VERBOSITY) in this function to print the
-    //results of the comparison.
-    //You can use tx_in.convert2string() and tx_out.convert2string() for
-    //debugging purposes
-
-    reg COUT;
-    reg VOUT;
-    reg [31:0] OUT;
-    reg [33:0] cal_result;
-    reg [33:0] result = getresult();
-
-    if (tx_in.rst) begin
-	cal_result = 34'b0;
-    end else begin
-	COUT = 1'b0;
-	VOUT = 1'b0;
-	case (tx_in.opcode)
-	    5'b00000: begin
-		OUT = ~ tx_in.A;
-	    end
-	    5'b00011: begin
-		OUT = tx_in.A ^ tx_in.B;
-	    end
-	    5'b00101: begin
-		OUT = tx_in.A & tx_in.B;
-	    end
-	    5'b00111: begin
-		OUT = tx_in.A | tx_in.B;
-	    end
-	    5'b01100: begin
-		OUT = ($signed(tx_in.A) <= $signed(tx_in.B)) ? 32'b1 : 32'b0;
-	    end
-	    5'b01001: begin
-		OUT = ($signed(tx_in.A) < $signed(tx_in.B)) ? 32'b1 : 32'b0;
-	    end
-	    5'b01110: begin
-		OUT = ($signed(tx_in.A) >= $signed(tx_in.B)) ? 32'b1 : 32'b0;
-	    end
-	    5'b01011: begin
-		OUT = ($signed(tx_in.A) > $signed(tx_in.B)) ? 32'b1 : 32'b0;
-	    end
-	    5'b01111: begin
-		OUT = ($signed(tx_in.A) == $signed(tx_in.B)) ? 32'b1 : 32'b0;
-	    end
-	    5'b01010: begin
-		OUT = ($signed(tx_in.A) != $signed(tx_in.B)) ? 32'b1 : 32'b0;
-	    end
-	    5'b10101: begin //signed addition TODO
-		{COUT, OUT} = $signed(tx_in.A) + $signed(tx_in.B) + tx_in.CIN;
-		VOUT = ((tx_in.A[31] == tx_in.B[31]) & (tx_in.A[31] != OUT[31]))? 1'b1 : 1'b0;
-	    end
-	    5'b10001: begin
-		{COUT, OUT} = tx_in.A + tx_in.B + tx_in.CIN;
-		VOUT = COUT;
-	    end
-	    5'b10100: begin //signed subtraction TODO
-		{COUT, OUT} = $signed(tx_in.A) - $signed(tx_in.B);
-		VOUT = ((tx_in.A[31] == tx_in.B[31]) & (tx_in.A[31] != OUT[31]))? 1'b1 : 1'b0;
-	    end
-	    5'b10000: begin
-		{COUT, OUT} = tx_in.A - tx_in.B;
-	    end
-	    5'b10111: begin //signed TODO
-		{COUT, OUT} = $signed(tx_in.A) + 1;
-		VOUT = ((tx_in.A[31] == 1'b0) & (tx_in.A[31] != OUT[31]))? 1'b1 : 1'b0;
-	    end
-	    5'b10110: begin //signed TODO
-		{COUT, OUT} = $signed(tx_in.A) - 1;
-		VOUT = ((tx_in.A[31] == 1'b1) & (tx_in.A[31] != OUT[31]))? 1'b1 : 1'b0;
-	    end
-	    5'b11010: begin
-		OUT = tx_in.A << tx_in.B[4:0];
-	    end
-	    5'b11011: begin
-		OUT = tx_in.A >> tx_in.B[4:0];
-	    end
-	    5'b11100: begin
-		reg one = |(tx_in.A >> (32- tx_in.B[4:0]));
-		OUT = $signed(tx_in.A) <<< tx_in.B[4:0];
-		VOUT = (one || (OUT[31] != tx_in.A[31])) ? 1'b1: 1'b0;
-	    end
-	    5'b11101: begin
-		OUT = $signed(tx_in.A) >>> tx_in.B[4:0];
-		VOUT = |(tx_in.A << (32 - tx_in.B[4:0]));
-	    end
-	    5'b11000: begin //rotate left shift
-		reg [63:0] A2 = {tx_in.A,tx_in.A};
-		OUT = (A2 >> (32 - tx_in.B[4:0]));
-	    end
-	    5'b11001: begin //rotate right shift
-		reg [63:0] A2 = {tx_in.A,tx_in.A};
-		OUT = (A2 >> tx_in.B[4:0]);
-	    end
-	    default: begin
-		OUT = 32'b0;
-	    end
-	endcase
-	cal_result = {VOUT,COUT,OUT};
+function void UART_scoreboard::compare_1;
+   
+    if (tx_in_1.i_wb_dat == tx_out_1.o_uart_txd){
+        tx_in_1.convert2string();
+        tx_out_1.convert2string();
+        uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
+        uvm_report_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
+        $display("The result is matched");
+    }
+    else{
+        tx_in_1.convert2string();
+        tx_out_1.convert2string();
+        uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
+        uvm_report_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
+        $display("The result is not matched!!!");
+    }
     end
-
-
-    `uvm_info(" ",{tx_in.convert2string()}, UVM_HIGH);
-    if (cal_result != result) begin
-    	`uvm_info(" ",{"BUG FOUND!!!"}, UVM_HIGH);
-    	`uvm_info("RESULT:  ",{tx_out.convert2string()}, UVM_HIGH);
-    	`uvm_info("EXPECPED:",{$sformatf("OUT = %b, COUT = %b, VOUT = %b",cal_result[31:0],cal_result[32],cal_result[33])}, UVM_HIGH);
-    end
-
 endfunction
 
+function void UART_scoreboard::compare_2;
 
-
-
-function [33:0] alu_scoreboard::getresult;
-    //TODO: Remove the statement below
-    //Modify this function to return a 34-bit result {VOUT, COUT,OUT[31:0]} which is
-    //consistent with the given spec.
-
-    reg VOUT = tx_out.VOUT;
-    reg COUT = tx_out.COUT;
-    reg [31:0] OUT = tx_out.OUT;
-
-    return {VOUT, COUT, OUT};    
-
+    if (tx_in_2.o_wb_dat == tx_out_2.uart_vi_in){
+        tx_in_2.convert2string();
+        tx_out_2.convert2string();
+        uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
+        uvm_report_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
+        $display("The result is matched");
+    }
+    else {
+        tx_in_2.convert2string();
+        tx_out_2.convert2string();
+        uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
+        uvm_report_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
+        $display("The result is not matched!!!");
+    }
+    end
 endfunction
 
 endpackage: scoreboard
