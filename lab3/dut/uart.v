@@ -51,27 +51,31 @@
 //                                                              //
 //////////////////////////////////////////////////////////////////
 
-`include "system_config_defines.v"
+`include "system_config_defines.vh"
+`include "global_defines.vh"
 
 // Normally AMBER_UART_BAUD is defined in the system_config_defines.v file.
 `ifndef AMBER_UART_BAUD
 `define AMBER_UART_BAUD 230400
 `endif
 
-module uart (
+module uart  #(
+parameter WB_DWIDTH  = 32,
+parameter WB_SWIDTH  = 4
+)(
 input                       i_clk,
 
 input       [31:0]          i_wb_adr,
-input       [3:0]           i_wb_sel,
+input       [WB_SWIDTH-1:0] i_wb_sel,
 input                       i_wb_we,
-output      [31:0]          o_wb_dat,
-input       [31:0]          i_wb_dat,
+output      [WB_DWIDTH-1:0] o_wb_dat,
+input       [WB_DWIDTH-1:0] i_wb_dat,
 input                       i_wb_cyc,
 input                       i_wb_stb,
 output                      o_wb_ack,
 output                      o_wb_err,
 
-//output                      o_uart_int,
+output                      o_uart_int,
 
 input                       i_uart_cts_n,   // Clear To Send
 output                      o_uart_txd,     // Transmit data
@@ -81,7 +85,7 @@ input                       i_uart_rxd      // Receive data
 );
 
 
-`include "register_addresses.v"
+`include "register_addresses.vh"
 
 
 localparam [3:0] TXD_IDLE  = 4'd0,
@@ -121,19 +125,19 @@ localparam RX_INTERRUPT_COUNT = 24'h3fffff;
 // -------------------------------------------------------------------------
 
 `ifndef Veritak
-localparam integer UART_BAUD         = `AMBER_UART_BAUD;            // Hz
+localparam real UART_BAUD         = `AMBER_UART_BAUD;            // Hz
 
 `ifdef XILINX_VIRTEX6_FPGA
-localparam integer CLK_FREQ          = 1000.0 / `AMBER_CLK_DIVIDER ; // MHz
+localparam real CLK_FREQ          = 1200.0 / `AMBER_CLK_DIVIDER ; // MHz
 `else
-localparam integer CLK_FREQ          = 800.0 / `AMBER_CLK_DIVIDER ; // MHz
+localparam real CLK_FREQ          = 800.0 / `AMBER_CLK_DIVIDER ; // MHz
 `endif
 
-localparam integer UART_BIT_PERIOD   = 1000000000 / UART_BAUD;      // nS
-localparam integer UART_WORD_PERIOD  = ( UART_BIT_PERIOD * 12 );    // nS
-localparam integer CLK_PERIOD        = 1000 / CLK_FREQ;             // nS
-localparam integer CLKS_PER_WORD     = UART_WORD_PERIOD / CLK_PERIOD;
-localparam integer CLKS_PER_BIT      = CLKS_PER_WORD / 12;
+localparam real UART_BIT_PERIOD   = 1000000000 / UART_BAUD;      // nS
+localparam real UART_WORD_PERIOD  = ( UART_BIT_PERIOD * 12 );    // nS
+localparam real CLK_PERIOD        = 1000 / CLK_FREQ;             // nS
+localparam real CLKS_PER_WORD     = UART_WORD_PERIOD / CLK_PERIOD;
+localparam real CLKS_PER_BIT      = CLKS_PER_WORD / 12;
 
 // These are rounded to the nearest whole number
 // i.e. 29.485960 -> 29
@@ -206,10 +210,11 @@ reg  [7:0]      uart_lcrl_reg = 'd0;      // Line Control Low Byte
 reg  [7:0]      uart_cr_reg = 'd0;        // Control Register
 
 // Wishbone interface
-reg  [31:0]     wb_rdata = 'd0;
+reg  [31:0]     wb_rdata32 = 'd0;
 wire            wb_start_write;
 wire            wb_start_read;
 reg             wb_start_read_d1 = 'd0;
+wire [31:0]     wb_wdata32;
 
 integer         i;
 
@@ -219,16 +224,31 @@ integer         i;
 
 // Can't start a write while a read is completing. The ack for the read cycle
 // needs to be sent first
-assign wb_start_write = i_wb_stb && i_wb_we && !wb_start_read_d1;
+assign wb_start_write = i_wb_stb &&  i_wb_we && !wb_start_read_d1;
 assign wb_start_read  = i_wb_stb && !i_wb_we && !o_wb_ack;
 
 always @( posedge i_clk )
     wb_start_read_d1 <= wb_start_read;
 
-assign o_wb_dat = wb_rdata;
-
 assign o_wb_err = 1'd0;
 assign o_wb_ack = i_wb_stb && ( wb_start_write || wb_start_read_d1 );
+
+generate
+if (WB_DWIDTH == 128) 
+    begin : wb128
+    assign wb_wdata32   = i_wb_adr[3:2] == 2'd3 ? i_wb_dat[127:96] :
+                          i_wb_adr[3:2] == 2'd2 ? i_wb_dat[ 95:64] :
+                          i_wb_adr[3:2] == 2'd1 ? i_wb_dat[ 63:32] :
+                                                  i_wb_dat[ 31: 0] ;
+                                                                                                                                            
+    assign o_wb_dat    = {4{wb_rdata32}};
+    end
+else
+    begin : wb32
+    assign wb_wdata32  = i_wb_dat;
+    assign o_wb_dat    = wb_rdata32;
+    end
+endgenerate
 
         
 // ======================================================
@@ -326,7 +346,7 @@ always @ ( posedge i_clk )
         rx_interrupt <=  rx_fifo_full;
 
 
-assign o_uart_integer   = ( tx_interrupt & uart_cr_reg[5] )  |  // UART transmit interrupt w/ enable
+assign o_uart_int   = ( tx_interrupt & uart_cr_reg[5] )  |  // UART transmit interrupt w/ enable
                       ( rx_interrupt & uart_cr_reg[4] )  ;  // UART receive  interrupt w/ enable
 
 assign fifo_enable = uart_lcrh_reg[4];
@@ -358,7 +378,7 @@ always @( posedge i_clk )
         // Push
         if ( tx_fifo_push_not_full )
             begin
-            tx_fifo[tx_fifo_wp[3:0]] <= i_wb_dat[7:0];
+            tx_fifo[tx_fifo_wp[3:0]] <= wb_wdata32[7:0];
             tx_fifo_wp <= tx_fifo_wp + 1'd1;
             end
         
@@ -387,7 +407,7 @@ always @( posedge i_clk )
         // Push
         if ( tx_fifo_push_not_full )
             begin
-            tx_fifo[0]          <= i_wb_dat[7:0];
+            tx_fifo[0]          <= wb_wdata32[7:0];
             tx_fifo_full_flag   <= 1'd1;
             end
         // Pop    
@@ -702,15 +722,15 @@ always @( posedge i_clk )
     if ( wb_start_write )
         case ( i_wb_adr[15:0] )
             // Receive status, (Write) Error Clear
-            AMBER_UART_RSR:  uart_rsr_reg      <= i_wb_dat[7:0];
+            AMBER_UART_RSR:  uart_rsr_reg      <= wb_wdata32[7:0];
             // Line Control High Byte    
-            AMBER_UART_LCRH: uart_lcrh_reg     <= i_wb_dat[7:0];
+            AMBER_UART_LCRH: uart_lcrh_reg     <= wb_wdata32[7:0];
             // Line Control Middle Byte    
-            AMBER_UART_LCRM: uart_lcrm_reg     <= i_wb_dat[7:0];
+            AMBER_UART_LCRM: uart_lcrm_reg     <= wb_wdata32[7:0];
             // Line Control Low Byte    
-            AMBER_UART_LCRL: uart_lcrl_reg     <= i_wb_dat[7:0];
+            AMBER_UART_LCRL: uart_lcrl_reg     <= wb_wdata32[7:0];
             // Control Register    
-            AMBER_UART_CR:   uart_cr_reg       <= i_wb_dat[7:0];
+            AMBER_UART_CR:   uart_cr_reg       <= wb_wdata32[7:0];
         endcase
 
 
@@ -721,29 +741,29 @@ always @( posedge i_clk )
     if ( wb_start_read )
         case ( i_wb_adr[15:0] )
         
-            AMBER_UART_CID0:    wb_rdata <= 32'h0d;
-            AMBER_UART_CID1:    wb_rdata <= 32'hf0;
-            AMBER_UART_CID2:    wb_rdata <= 32'h05;
-            AMBER_UART_CID3:    wb_rdata <= 32'hb1;
-            AMBER_UART_PID0:    wb_rdata <= 32'h10;
-            AMBER_UART_PID1:    wb_rdata <= 32'h10;
-            AMBER_UART_PID2:    wb_rdata <= 32'h04;
-            AMBER_UART_PID3:    wb_rdata <= 32'h00;
+            AMBER_UART_CID0:    wb_rdata32 <= 32'h0d;
+            AMBER_UART_CID1:    wb_rdata32 <= 32'hf0;
+            AMBER_UART_CID2:    wb_rdata32 <= 32'h05;
+            AMBER_UART_CID3:    wb_rdata32 <= 32'hb1;
+            AMBER_UART_PID0:    wb_rdata32 <= 32'h10;
+            AMBER_UART_PID1:    wb_rdata32 <= 32'h10;
+            AMBER_UART_PID2:    wb_rdata32 <= 32'h04;
+            AMBER_UART_PID3:    wb_rdata32 <= 32'h00;
             
             AMBER_UART_DR:      // Rx data   
                     if ( fifo_enable )
-                        wb_rdata <= {24'd0, rx_fifo[rx_fifo_rp[3:0]]};
+                        wb_rdata32 <= {24'd0, rx_fifo[rx_fifo_rp[3:0]]};
                     else    
-                        wb_rdata <= {24'd0, rx_fifo[0]};
+                        wb_rdata32 <= {24'd0, rx_fifo[0]};
                                       
-            AMBER_UART_RSR:     wb_rdata <= uart_rsr_reg;          // Receive status, (Write) Error Clear
-            AMBER_UART_LCRH:    wb_rdata <= uart_lcrh_reg;         // Line Control High Byte
-            AMBER_UART_LCRM:    wb_rdata <= uart_lcrm_reg;         // Line Control Middle Byte
-            AMBER_UART_LCRL:    wb_rdata <= uart_lcrl_reg;         // Line Control Low Byte
-            AMBER_UART_CR:      wb_rdata <= uart_cr_reg;           // Control Register
+            AMBER_UART_RSR:     wb_rdata32 <= uart_rsr_reg;          // Receive status, (Write) Error Clear
+            AMBER_UART_LCRH:    wb_rdata32 <= uart_lcrh_reg;         // Line Control High Byte
+            AMBER_UART_LCRM:    wb_rdata32 <= uart_lcrm_reg;         // Line Control Middle Byte
+            AMBER_UART_LCRL:    wb_rdata32 <= uart_lcrl_reg;         // Line Control Low Byte
+            AMBER_UART_CR:      wb_rdata32 <= uart_cr_reg;           // Control Register
             
             // UART Tx/Rx Status
-            AMBER_UART_FR:      wb_rdata <= {tx_fifo_empty,       // tx fifo empty
+            AMBER_UART_FR:      wb_rdata32 <= {tx_fifo_empty,       // tx fifo empty
                                              rx_fifo_full,        // rx fifo full
                                              tx_fifo_full,        // tx fifo full
                                              rx_fifo_empty,       // rx fifo empty
@@ -754,14 +774,14 @@ always @( posedge i_clk )
                                              };                    // Flag Register
             
             // Interrupt Status                                                    
-            AMBER_UART_IIR:     wb_rdata <= {5'd0, 
+            AMBER_UART_IIR:     wb_rdata32 <= {5'd0, 
                                              1'd0,                 // RTIS  - receive timeout interrupt
                                              tx_interrupt,         // TIS   - transmit interrupt status
                                              rx_interrupt,         // RIS   - receive interrupt status
                                              1'd0                  // Modem interrupt status
                                             };                     // (Write) Clear Int
                                             
-            default:            wb_rdata <= 32'h00c0ffee;
+            default:            wb_rdata32 <= 32'h00c0ffee;
             
         endcase
 
@@ -791,7 +811,7 @@ initial
         begin
         `TB_ERROR_MESSAGE
         $display("UART TX bit period, %.1f, is too big. UART will not work!", TX_BITPULSE_COUNT * CLK_PERIOD);
-        $display("Baud rate is %d, and baud bit period is %.1f", UART_BAUD, UART_BIT_PERIOD);
+        $display("Baud rate is %f, and baud bit period is %.1f", UART_BAUD, UART_BIT_PERIOD);
         $display("Either reduce the baud rate, or increase the system clock frequency");
         $display("------");
         end
@@ -867,7 +887,7 @@ always @( posedge i_clk )
         `TB_DEBUG_MESSAGE
         
         if ( wb_start_write )
-            $write("Write 0x%08x to   ", i_wb_dat);
+            $write("Write 0x%08x to   ", wb_wdata32);
         else
             $write("Read  0x%08x from ", o_wb_dat);
             
@@ -880,7 +900,7 @@ always @( posedge i_clk )
             AMBER_UART_CID1:    $write("UART CID1 register"); 
             AMBER_UART_CID2:    $write("UART CID2 register"); 
             AMBER_UART_CID3:    $write("UART CID3 register"); 
-            AMBER_UART_DR:      $write("UART Tx/Rx char %c", wb_start_write ? i_wb_dat[7:0] : o_wb_dat[7:0] );
+            AMBER_UART_DR:      $write("UART Tx/Rx char %c", wb_start_write ? wb_wdata32[7:0] : o_wb_dat[7:0] );
             AMBER_UART_RSR:     $write("UART (Read) Receive status, (Write) Error Clear");
             AMBER_UART_LCRH:    $write("UART Line Control High Byte");
             AMBER_UART_LCRM:    $write("UART Line Control Middle Byte");
@@ -920,7 +940,7 @@ always @ ( posedge i_clk )
     if ( tx_fifo_push && tx_fifo_full )
         begin
         `TB_WARNING_MESSAGE
-        $display("UART tx FIFO overflow - char = %c", i_wb_dat[7:0]);
+        $display("UART tx FIFO overflow - char = %c", wb_wdata32[7:0]);
         end
     end
 
