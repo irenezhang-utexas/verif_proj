@@ -80,9 +80,7 @@ package sequences;
         // TODO: Register the  alu_transaction_out object. Hint: Look at other classes to find out what is missing.
 	`uvm_object_utils(alu_transaction_out);
 
-	    logic		i_uart_clk;
-        logic		o_uart_txd;
-        logic 		o_uart_rts_n;
+        logic[11:0]	tx_frame;
 
         function new(string name = "");
             super.new(name);
