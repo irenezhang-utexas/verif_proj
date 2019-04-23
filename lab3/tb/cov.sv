@@ -1,4 +1,6 @@
 `include "uvm_macros.svh"
+`include "../dut/system_config_defines.sv"
+`include "../dut/register_addresses.sv"
 package coverage;
 import sequences::*;
 import uvm_pkg::*;

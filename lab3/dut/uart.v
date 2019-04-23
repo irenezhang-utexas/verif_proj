@@ -51,8 +51,8 @@
 //                                                              //
 //////////////////////////////////////////////////////////////////
 
-`include "system_config_defines.vh"
-`include "global_defines.vh"
+`include "system_config_defines.sv"
+//`include "global_defines.vh"
 
 // Normally AMBER_UART_BAUD is defined in the system_config_defines.v file.
 `ifndef AMBER_UART_BAUD
@@ -85,7 +85,7 @@ input                       i_uart_rxd      // Receive data
 );
 
 
-`include "register_addresses.vh"
+`include "register_addresses.sv"
 
 
 localparam [3:0] TXD_IDLE  = 4'd0,
@@ -794,7 +794,7 @@ always @( posedge i_clk )
 // Non-synthesizable debug code
 // =======================================================================================
 
-
+/*
 //synopsys translate_off
 
 // ========================================================
@@ -984,7 +984,7 @@ assign xRXD_STATE      = rxd_state == RXD_IDLE       ? "RXD_IDLE"      :
                                                        "UNKNOWN"       ;
 
 //synopsys translate_on
-
+*/
 
 endmodule
 
