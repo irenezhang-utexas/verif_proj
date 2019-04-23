@@ -1,6 +1,6 @@
 
-class alu_agent_in extends uvm_agent;
-    `uvm_component_utils(alu_agent_in)
+class agent_in extends uvm_agent;
+    `uvm_component_utils(agent_in)
 
     uvm_analysis_port #(wb2uart) aport;
     uvm_analysis_port #(uart_rx_frame) bport;
@@ -39,6 +39,6 @@ class alu_agent_in extends uvm_agent;
         uart_monitor_in_h.aport.connect(bport);
     endfunction: connect_phase
 
-endclass: alu_agent_in
+endclass: agent_in
 
 
