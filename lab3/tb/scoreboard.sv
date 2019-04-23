@@ -77,39 +77,37 @@ endclass: UART_scoreboard
 
 function void UART_scoreboard::compare_1;
    
-    if (tx_in_1.i_wb_dat == tx_out_1.o_uart_txd){
+    if (tx_in_1.i_wb_dat == tx_out_1.o_uart_txd) begin
         tx_in_1.convert2string();
         tx_out_1.convert2string();
         uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
         uvm_report_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
         $display("The result is matched");
-    }
-    else{
+    end
+    else begin
         tx_in_1.convert2string();
         tx_out_1.convert2string();
         uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
         uvm_report_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
         $display("The result is not matched!!!");
-    }
     end
 endfunction
 
 function void UART_scoreboard::compare_2;
 
-    if (tx_in_2.o_wb_dat == tx_out_2.uart_vi_in){
+    if (tx_in_2.o_wb_dat == tx_out_2.uart_vi_in) begin
         tx_in_2.convert2string();
         tx_out_2.convert2string();
         uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
         uvm_report_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
         $display("The result is matched");
-    }
-    else {
+    end
+    else begin
         tx_in_2.convert2string();
         tx_out_2.convert2string();
         uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
         uvm_report_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
         $display("The result is not matched!!!");
-    }
     end
 endfunction
 
