@@ -9,23 +9,23 @@ class UART_scoreboard extends uvm_scoreboard;
     
     // scoreboard 1
     uvm_analysis_export #(wb2uart) sb_in_1;
-    uvm_analysis_export #(wb2uart) sb_out_1;
+    uvm_analysis_export #(uart_tx_frame) sb_out_1;
 
     uvm_tlm_analysis_fifo #(wb2uart) fifo_in_1;
-    uvm_tlm_analysis_fifo #(wb2uart) fifo_out_1;
+    uvm_tlm_analysis_fifo #(uart_tx_frame) fifo_out_1;
     
     wb2uart tx_in_1;
-    wb2uart tx_out_1;
+    uart_tx_frame tx_out_1;
     
     // scoreboard 2
     uvm_analysis_export #(uart_rx_frame) sb_in_2;
-    uvm_analysis_export #(uart_rx_frame) sb_out_2;
+    uvm_analysis_export #(uart2wb) sb_out_2;
 
     uvm_tlm_analysis_fifo #(uart_rx_frame) fifo_in_2;
-    uvm_tlm_analysis_fifo #(uart_rx_frame) fifo_out_2;
+    uvm_tlm_analysis_fifo #(uart2wb) fifo_out_2;
     
     uart_rx_frame tx_in_2;
-    uart_rx_frame tx_out_2;
+    uart2wb tx_out_2;
 
 
     function new(string name, uvm_component parent);
@@ -78,7 +78,7 @@ endclass: UART_scoreboard
 
 function void UART_scoreboard::compare_1;
    
-    if (tx_in_1.i_wb_dat == tx_out_1.o_uart_txd) begin
+    if (tx_in_1.i_wb_dat[7:0] == tx_out_1.tx_frame[10:3]) begin
         tx_in_1.convert2string();
         tx_out_1.convert2string();
         uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
@@ -96,7 +96,7 @@ endfunction
 
 function void UART_scoreboard::compare_2;
 
-    if (tx_in_2.o_wb_dat == tx_out_2.uart_vi_in) begin
+    if (tx_in_2.payload == tx_out_2.o_wb_dat[7:0]) begin
         tx_in_2.convert2string();
         tx_out_2.convert2string();
         uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);

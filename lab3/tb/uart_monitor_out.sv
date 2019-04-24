@@ -31,12 +31,12 @@ class uart_monitor_out extends uvm_monitor;
         
         @(posedge uart_vi_out.i_uart_clk);
         tx 		= uart_tx_frame::type_id::create("tx");
-	tx.tx_frame	= {tx.tx_frame[10:0],uart_vi_out.o_uart_txd};
+	   tx.tx_frame	= {tx.tx_frame[10:0],uart_vi_out.o_uart_txd};
 
 
         tx_state = (tx_state == 4'd12) ? 4'd0 :
 		   (tx_state != 4'd0) ? tx_state + 4'd1 :
-		   (tx.o_uart_txd == 1'd0) ? 4'd1 : 4'd0;
+		   (uart_vi_out.o_uart_txd == 1'd0) ? 4'd1 : 4'd0;
 
 	if (tx_state == 4'd12) aport.write(tx);
 	

@@ -9,7 +9,7 @@ import uart_pkg::*;
 
         rand logic [15:0] 	i_wb_addr_hi;
         rand logic [15:0] 	i_wb_addr_lo;
-	rand logic [31:0]	i_wb_dat;
+	   rand logic [31:0]	i_wb_dat;
         rand logic		i_wb_we;
         rand logic 		i_wb_stb;
 
@@ -45,6 +45,7 @@ import uart_pkg::*;
 	constraint default_stop_bits 	{ stop_bits == 2'b11;}
 	constraint fifo_empty 		{ start_bit == 1'b1;}
 
+
   	`uvm_object_utils_begin(uart_rx_frame)
     	    `uvm_field_int(start_bit, UVM_DEFAULT)
     	    `uvm_field_int(payload, UVM_DEFAULT)
@@ -62,17 +63,17 @@ import uart_pkg::*;
 	`uvm_object_utils(uart2wb);
 
 	    logic		i_clk;
-        logic [31:0] 	o_wb_dat;
+        logic [31:0] o_wb_dat;
         logic		o_wb_ack;
         logic 		o_wb_err;
-        logic       o_uart_rts_n;
-
+        //logic       o_uart_rts_n;
+        //TBDD
         function new(string name = "");
             super.new(name);
         endfunction: new;
         
         function string convert2string;
-            convert2string={$sformatf("o_uart_rts_n: %b, o_wb_ack: %b\no_wb_dat: %b",o_uart_rts_n,o_wb_ack,o_wb_dat)};
+            convert2string={$sformatf(" o_wb_ack: %b\no_wb_dat: %b",o_wb_ack,o_wb_dat)};
         endfunction: convert2string
 
     endclass: uart2wb
@@ -83,16 +84,16 @@ import uart_pkg::*;
 
         logic[11:0]	tx_frame;
 
-        logic i_clk;
+        /*logic i_clk;
         logic i_wb_adr;
-        logic o_uart_txd;
+        logic o_uart_txd;*/
 
         function new(string name = "");
             super.new(name);
         endfunction: new;
         
         function string convert2string;
-            convert2string={$sformatf("i_wb_adr: %b o_uart_txd: %d ",i_wb_adr,o_uart_txd)};
+            convert2string={$sformatf("tx_frame: %b ",tx_frame)};
         endfunction: convert2string
 
     endclass: uart_tx_frame
@@ -116,8 +117,8 @@ import uart_pkg::*;
             	tx=uart_rx_frame::type_id::create("tx");
             	start_item(tx);
 
-	    	      tx.fifo_full.constraint_mode(0); 
-	    	      tx.fifo_empty.constraint_mode(0); 
+	    	      //tx.fifo_full.constraint_mode(0); 
+	    	      //tx.fifo_empty.constraint_mode(0); 
 
             	assert(tx.randomize());
             	finish_item(tx);
@@ -133,8 +134,8 @@ import uart_pkg::*;
             	tx=uart_rx_frame::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.fifo_full.constraint_mode(1); 
-	    	tx.fifo_empty.constraint_mode(0); 
+	    	//tx.fifo_full.constraint_mode(1); 
+	    	//tx.fifo_empty.constraint_mode(0); 
 
             	assert(tx.randomize());
             	finish_item(tx);
@@ -150,7 +151,7 @@ import uart_pkg::*;
             	tx=uart_rx_frame::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.fifo_full.constraint_mode(0); 
+	    	//tx.fifo_full.constraint_mode(0); 
 	    	tx.fifo_empty.constraint_mode(1); 
 
             	assert(tx.randomize());
@@ -167,7 +168,7 @@ import uart_pkg::*;
             	tx=uart_rx_frame::type_id::create("tx");
             	start_item(tx);
 
-	    	tx.fifo_full.constraint_mode(0); 
+	    	//tx.fifo_full.constraint_mode(0); 
 	    	tx.fifo_empty.constraint_mode(0); 
 
             	assert(tx.randomize());
@@ -198,8 +199,8 @@ class tx_seq extends uvm_sequence #(uart_tx_frame);
                 tx=uart_tx_frame::type_id::create("tx");
                 start_item(tx);
 
-            tx.fifo_full.constraint_mode(0); 
-            tx.fifo_empty.constraint_mode(0); 
+            //tx.fifo_full.constraint_mode(0); 
+            //tx.fifo_empty.constraint_mode(0); 
 
                 assert(tx.randomize());
                 finish_item(tx);

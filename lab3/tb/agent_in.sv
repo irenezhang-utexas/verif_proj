@@ -34,9 +34,9 @@ class agent_in extends uvm_agent;
     endfunction: build_phase
 
     function void connect_phase(uvm_phase phase);
-        wb2uart_driver_in_h.seq_item_port.connect(wb2uart_sequencer_in_h.seq_item_export);
+        wb2uart_driver_h.seq_item_port.connect(wb2uart_sequencer_in_h.seq_item_export);
         uart_driver_in_h.seq_item_port.connect(rx_frame_sequencer_in_h.seq_item_export);
-        wb2uart_monitor_in_h.aport.connect(aport);
+        wb2uart_monitor_h.aport.connect(aport);
         uart_monitor_in_h.aport.connect(bport);
     endfunction: connect_phase
 

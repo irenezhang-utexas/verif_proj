@@ -16,7 +16,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
 
     function void build_phase(uvm_phase phase);
        assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", dut_config_0));
-       uart_vi_in = dut_config_0.uart_vi_in;
+       uart_vi_in = dut_config_0.dut_vi_in;
     endfunction : build_phase
    
 
@@ -35,7 +35,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                         //@(posedge uart_vi_in.i_uart_clk)//this must be synconized with sampler in monitor
                         if(!uart_vi_in.o_uart_rts_n) begin
                             seq_item_port.get_next_item(req);
-                            send_uart_frame(req);
+                            sent_uart_frame(req);
                             seq_item_port.item_done();
                         end
                             
@@ -46,7 +46,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
         end
     endtask : get_and_drive
 
-    task sent_uart_frame();
+    task sent_uart_frame(input uart_rx_frame req);
         int bit_counter = 0;
 
         //wait untial o_uart_rts_o is low
@@ -56,16 +56,16 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
             @(posedge uart_vi_in.i_uart_clk)
                 //sending start bity
                 if(bit_counter == 0)begin
-                    uart_vi_in.i_uart_rxd = uart_vi_in.start_bit;
+                    uart_vi_in.i_uart_rxd = req.start_bit;
                 end
                 //sending data
                 if ((bit_counter > 0) && (bit_counter < 9)) begin
                     wait(uart_vi_in.o_uart_rts_n);
-                    uart_vi_in.i_uart_rxd = uart_vi_in.payload[bit_counter-1];
+                    uart_vi_in.i_uart_rxd = req.payload[bit_counter-1];
                 end
                 //sening stop
                 if (bit_counter == 9) begin
-                    uart_vi_in.i_uart_rxd = uart_vi_in.stop_bits[0];
+                    uart_vi_in.i_uart_rxd = req.stop_bits[0];
                 end
                 bit_counter++;
         end

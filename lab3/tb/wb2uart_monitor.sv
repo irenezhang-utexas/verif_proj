@@ -29,8 +29,9 @@ class wb2uart_monitor extends uvm_monitor;
         @(posedge dut_vi_in.clk);
         tx = wb2uart::type_id::create("tx");
         // assign them to the transaction "tx"
-	tx.i_clk	= dut_vi_in.i_clk;
-	tx.i_wb_adr	= dut_vi_in.i_wb_adr;
+	//tx.i_clk	= dut_vi_in.i_clk;
+	tx.i_wb_addr_hi	= dut_vi_in.i_wb_adr[31:16];
+    tx.i_wb_addr_lo   = dut_vi_in.i_wb_adr[15:0];
 	tx.i_wb_we	= dut_vi_in.i_wb_we;
 	tx.i_wb_dat	= dut_vi_in.i_wb_dat;
 	tx.i_wb_stb	= dut_vi_in.i_wb_stb;
