@@ -1,3 +1,5 @@
+`include "uvm_macros.svh"
+import uart_pkg::*;
 class uart_dut_config extends uvm_object;
     `uvm_object_utils(uart_dut_config)
 

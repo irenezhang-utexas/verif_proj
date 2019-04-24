@@ -1,4 +1,5 @@
-
+`include "uvm_macros.svh"
+import uart_pkg::*;
 class uart_monitor_in extends uvm_monitor;
     `uvm_component_utils(uart_monitor_in)
 
@@ -20,18 +21,19 @@ class uart_monitor_in extends uvm_monitor;
 
         assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", dut_config_0) );
 
-        uart_vi_in=dut_config_0.uart_vi_in;
+        uart_vi_in=dut_config_0.dut_vi_in;
 
     endfunction: build_phase
 
 
     task run_phase(uvm_phase phase);
+        uart_rx_frame frame;
+        frame = uart_rx_frame::type_id::create("frame");
+
+
     @(posedge uart_vi_in.i_uart_clk);
       forever
       begin
-
-        uart_rx_frame frame;
-        frame = uart_rx_frame::type_id::create("frame");
 
         int monitor_counter = 0;
 
@@ -45,12 +47,12 @@ class uart_monitor_in extends uvm_monitor;
                     frame.start_bit= uart_vi_in.i_uart_rxd;
                 end
                 //sending data
-                if ((num_of_bits_sent > 0) && (num_of_bits_sent < 9)) begin
+                if ((monitor_counter > 0) && (monitor_counter < 9)) begin
                     wait(uart_vi_in.o_uart_rts_n);
                     frame.payload[monitor_counter-1] = uart_vi_in.i_uart_rxd;
                 end
                 //sening stop
-                if ((num_of_bits_sent == 9) begin
+                if (monitor_counter == 9) begin
                     frame.stop_bits = uart_vi_in.i_uart_rxd;
                 end
                 monitor_counter++;

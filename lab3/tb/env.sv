@@ -1,3 +1,5 @@
+`include "uvm_macros.svh"
+import uart_pkg::*;
 class env extends uvm_env;
     `uvm_component_utils(env)
 
@@ -37,4 +39,4 @@ class env extends uvm_env;
         uvm_top.set_report_verbosity_level_hier(UVM_LOW);
     endfunction: start_of_simulation_phase
 
-endclass: alu_env
+endclass: env

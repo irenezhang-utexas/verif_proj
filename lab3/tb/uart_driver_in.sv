@@ -1,4 +1,5 @@
-
+`include "uvm_macros.svh"
+import uart_pkg::*;
 //Get a Uart frame and transfer it it to serialized data
 class uart_driver_in extends uvm_driver#(uart_rx_frame);
 
@@ -20,19 +21,19 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
    
 
 
-    task uart_driver_in::run_phase(uvm_phase phase);
+    task run_phase(uvm_phase phase);
         fork
             get_and_drive();
         join
     endtask : run_phase
 
-    task uart_driver_in::get_and_drive();
+    task get_and_drive();
         while (1) begin
             fork
                 begin
                     forever begin
                         //@(posedge uart_vi_in.i_uart_clk)//this must be synconized with sampler in monitor
-                        if(！uart_vi_in.o_uart_rts_n)) begin
+                        if(!uart_vi_in.o_uart_rts_n) begin
                             seq_item_port.get_next_item(req);
                             send_uart_frame(req);
                             seq_item_port.item_done();
@@ -45,7 +46,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
         end
     endtask : get_and_drive
 
-    task uart_driver_in::sent_uart_frame();
+    task sent_uart_frame();
         int bit_counter = 0;
 
         //wait untial o_uart_rts_o is low
@@ -58,12 +59,12 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                     uart_vi_in.i_uart_rxd = uart_vi_in.start_bit;
                 end
                 //sending data
-                if ((num_of_bits_sent > 0) && (num_of_bits_sent < 9)) begin
+                if ((bit_counter > 0) && (bit_counter < 9)) begin
                     wait(uart_vi_in.o_uart_rts_n);
                     uart_vi_in.i_uart_rxd = uart_vi_in.payload[bit_counter-1];
                 end
                 //sening stop
-                if ((num_of_bits_sent == 9) begin
+                if (bit_counter == 9) begin
                     uart_vi_in.i_uart_rxd = uart_vi_in.stop_bits[0];
                 end
                 bit_counter++;

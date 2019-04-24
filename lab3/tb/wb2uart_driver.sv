@@ -1,6 +1,7 @@
+`include "uvm_macros.svh"
+import uart_pkg::*;
 
-
-class wb2uart_driver extends uvm_driver#(alu_transaction_in);
+class wb2uart_driver extends uvm_driver#(uart_tx_frame);
     `uvm_component_utils(wb2uart_driver)
 
     amber_dut_config dut_config_0;

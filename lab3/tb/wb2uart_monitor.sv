@@ -1,4 +1,5 @@
-
+`include "uvm_macros.svh"
+import uart_pkg::*;
 class wb2uart_monitor extends uvm_monitor;
     `uvm_component_utils(wb2uart_monitor)
 

@@ -1,9 +1,10 @@
 `include "uvm_macros.svh"
-`include "../dut/system_config_defines.sv"
-`include "../dut/register_addresses.sv"
-package coverage;
-import sequences::*;
-import uvm_pkg::*;
+
+
+import uart_pkg::*;
+
+
+
 
 class wb2uart_subscriber extends uvm_subscriber #(wb2uart);
     `uvm_component_utils(wb2uart)
@@ -42,7 +43,7 @@ class wb2uart_subscriber extends uvm_subscriber #(wb2uart);
 	    bins zero	= {0};
 	}
 
-	crs_addr_cmd: cross uart_addr, uart_we, uart_stb
+	crs_addr_cmd: cross uart_addr, uart_we, uart_stb;
 
 
     endgroup: inputs
@@ -57,7 +58,7 @@ class wb2uart_subscriber extends uvm_subscriber #(wb2uart);
 
     function void write(wb2uart t);
         i_wb_adr = t.i_wb_adr[15:0];
-        i_wb_se  = t.i_wb_we;
+        i_wb_we  = t.i_wb_we;
         i_wb_stb = t.i_wb_stb;
         inputs.sample();
         
@@ -66,11 +67,6 @@ class wb2uart_subscriber extends uvm_subscriber #(wb2uart);
 endclass: wb2uart_subscriber
 
 
-class dut_subscriber_in extends uvm_subscriber #(wb2uart);
-    `uvm_component_utils(alu_subscriber_out)
 
 
-endclass: dut_subscriber_in
 
-
-endpackage: coverage

@@ -8,7 +8,10 @@ vlib work
 
 vlog ../dut/uart.v 
 
-vlog +cover -sv ../tb/cov.sv ../tb/agent_in.sv  ../tb/agent_out.sv ../tb/config.sv . ../tb/scoreboard.sv ../tb/env.sv ../tb/interface.sv ../tb/lin.sv ../tb/sequences.sv ../tb/tb.sv ../tb/tests.sv  ../tb/uart2wb_monitor.sv ../tb/uart_driver_in.sv ../tb/uart_monitor_in.sv ../tb/uart_monitor_out.sv ../tb/wb2uart_driver.sv ../tb/wb2uart_monitor.sv  ../dut/register_addresses.sv ../dut/system_config_defines.sv
+vlog +cover -sv ../tb/interfaces.sv  ../tb/uart_pkg.sv  ../tb/tb.sv 
+
+
+
 
 # Simulate the design.
 vsim -c top

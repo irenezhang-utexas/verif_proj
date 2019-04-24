@@ -1,4 +1,5 @@
-
+`include "uvm_macros.svh"
+import uart_pkg::*;
 
 class agent_out extends uvm_agent;
     `uvm_component_utils(agent_out)

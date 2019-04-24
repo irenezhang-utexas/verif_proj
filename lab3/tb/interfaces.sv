@@ -1,3 +1,6 @@
+`include "uvm_macros.svh"
+//import uart_pkg::*;
+
 interface dut_in;
     logic           	i_clk;
 

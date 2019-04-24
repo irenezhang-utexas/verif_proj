@@ -1,3 +1,5 @@
+`include "uvm_macros.svh"
+import uart_pkg::*;
 class uart_monitor_out extends uvm_monitor;
     `uvm_component_utils(uart_monitor_out)
 
@@ -17,7 +19,7 @@ class uart_monitor_out extends uvm_monitor;
         uart_config_0=uart_dut_config::type_id::create("config");
         aport=new("aport",this);
         assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", uart_config_0) );
-        uart_vi_out=uart_config_0.uart_vi_out;
+        uart_vi_out=uart_config_0.dut_vi_out;
 
     endfunction: build_phase
 
@@ -29,7 +31,7 @@ class uart_monitor_out extends uvm_monitor;
         
         @(posedge uart_vi_out.i_uart_clk);
         tx 		= uart_tx_frame::type_id::create("tx");
-	tx.tx_frame	= {tx.tx_frame[10:0],dut_vi_out.o_uart_txd};
+	tx.tx_frame	= {tx.tx_frame[10:0],uart_vi_out.o_uart_txd};
 
 
         tx_state = (tx_state == 4'd12) ? 4'd0 :

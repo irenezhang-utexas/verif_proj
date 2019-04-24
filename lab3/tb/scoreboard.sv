@@ -1,29 +1,30 @@
 `include "uvm_macros.svh"
-package scoreboard; 
 import uvm_pkg::*;
-import sequences::*;
+
+
+
 
 class UART_scoreboard extends uvm_scoreboard;
     `uvm_component_utils(UART_scoreboard)
-	
-	// scoreboard 1
+    
+    // scoreboard 1
     uvm_analysis_export #(wb2uart) sb_in_1;
     uvm_analysis_export #(wb2uart) sb_out_1;
 
     uvm_tlm_analysis_fifo #(wb2uart) fifo_in_1;
     uvm_tlm_analysis_fifo #(wb2uart) fifo_out_1;
-	
-	wb2uart tx_in_1;
+    
+    wb2uart tx_in_1;
     wb2uart tx_out_1;
-	
-	// scoreboard 2
+    
+    // scoreboard 2
     uvm_analysis_export #(uart_rx_frame) sb_in_2;
     uvm_analysis_export #(uart_rx_frame) sb_out_2;
 
     uvm_tlm_analysis_fifo #(uart_rx_frame) fifo_in_2;
     uvm_tlm_analysis_fifo #(uart_rx_frame) fifo_out_2;
-	
-	uart_rx_frame tx_in_2;
+    
+    uart_rx_frame tx_in_2;
     uart_rx_frame tx_out_2;
 
 
@@ -110,5 +111,3 @@ function void UART_scoreboard::compare_2;
         $display("The result is not matched!!!");
     end
 endfunction
-
-endpackage: scoreboard

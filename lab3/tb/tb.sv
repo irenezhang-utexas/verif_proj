@@ -1,11 +1,6 @@
 `timescale 1ns / 100ps
 `include "uvm_macros.svh"
-import uvm_pkg::*;
-import modules_pkg::*;
-import sequences::*;
-import coverage::*;
-import scoreboard::*;
-import tests::*;
+import uart_pkg::*;
 
 module dut(dut_in _in, dut_out _out, uart_in _uart_in, uart_out _uart_out);
 uart uart_dut(
@@ -90,10 +85,15 @@ initial begin
     // TODO: what does the following do
     uvm_config_db #(virtual dut_in)::set(null,"uvm_test_top","dut_vi_in",dut_in1);
     uvm_config_db #(virtual dut_out)::set(null,"uvm_test_top","dut_vi_out",dut_out1);
+    uvm_config_db #(virtual uart_in)::set(null,"uvm_test_top","uart_vi_in",uart_in1);
+    uvm_config_db #(virtual uart_out)::set(null,"uvm_test_top","uart_vi_out",uart_out1);
     // calls $finish after all phases finish
     uvm_top.finish_on_completion=1;
 
-    run_test("rst_test");
+    fork
+    run_test("test1");
+    run_test("test2");
+	join_any
 end
 
 endmodule: top

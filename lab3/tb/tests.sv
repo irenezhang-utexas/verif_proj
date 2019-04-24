@@ -1,12 +1,10 @@
-package tests;
 `include "uvm_macros.svh"
-import modules_pkg::*;
-import uvm_pkg::*;
-import sequences::*;
-import scoreboard::*;
+import uart_pkg::*;
 
-class rst_test extends alu_test;
-    `uvm_component_utils(rst_test)
+
+
+class test1 extends uart_test;
+    `uvm_component_utils(test1)
 
     function new(string name, uvm_component parent);
         super.new(name,parent);
@@ -14,15 +12,36 @@ class rst_test extends alu_test;
     
     task run_phase(uvm_phase phase);
 	
-	rst_commands seq;
-	seq = rst_commands::type_id::create("seq");
+	tx_seq seq;
+	seq = tx_seq::type_id::create("seq");
 	assert( seq.randomize() );
 	phase.raise_objection(this);
-	seq.start(alu_env_h.alu_agent_in_h.alu_sequencer_in_h);
+
+	seq.start(env_h.agent_in_h.wb2uart_sequencer_in_h);
 
 	phase.drop_objection(this);
     endtask: run_phase     
-endclass: rst_test
+endclass: test1
 
 
-endpackage: tests
+
+
+class test2 extends uart_test;
+    `uvm_component_utils(test2)
+
+    function new(string name, uvm_component parent);
+        super.new(name,parent);
+    endfunction: new
+    
+    task run_phase(uvm_phase phase);
+	
+	rx_seq seq;
+	seq = rx_seq::type_id::create("seq");
+	assert( seq.randomize() );
+	phase.raise_objection(this);
+
+	seq.start(env_h.agent_in_h.rx_frame_sequencer_in_h);
+
+	phase.drop_objection(this);
+    endtask: run_phase     
+endclass: test2
