@@ -22,13 +22,13 @@ class uart2wb_monitor extends uvm_monitor;
     endfunction: build_phase
 
     task run_phase(uvm_phase phase);
-    @(posedge dut_vi_out.clk);
-    @(posedge dut_vi_out.clk);
+    @(posedge dut_vi_out.i_clk);
+    @(posedge dut_vi_out.i_clk);
       forever
       begin
         uart2wb tx;
         
-        @(posedge dut_vi_out.clk);
+        @(posedge dut_vi_out.i_clk);
         tx = uart2wb::type_id::create("tx");
         // assign them to the transaction "tx"
 	tx.i_clk	= dut_vi_out.i_clk;

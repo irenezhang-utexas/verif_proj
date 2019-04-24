@@ -22,11 +22,11 @@ class wb2uart_monitor extends uvm_monitor;
     endfunction: build_phase
 
     task run_phase(uvm_phase phase);
-    @(posedge dut_vi_in.clk);
+    @(posedge dut_vi_in.i_clk);
       forever
       begin
         wb2uart tx;
-        @(posedge dut_vi_in.clk);
+        @(posedge dut_vi_in.i_clk);
         tx = wb2uart::type_id::create("tx");
         // assign them to the transaction "tx"
 	//tx.i_clk	= dut_vi_in.i_clk;

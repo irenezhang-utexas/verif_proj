@@ -1,13 +1,16 @@
 `include "uvm_macros.svh"
 import uart_pkg::*;
+typedef uvm_sequencer #(wb2uart) tx_sequencer_in;
+typedef uvm_sequencer #(uart_rx_frame) rx_sequencer_in;
+
 class agent_in extends uvm_agent;
     `uvm_component_utils(agent_in)
 
     uvm_analysis_port #(wb2uart) aport;
     uvm_analysis_port #(uart_rx_frame) bport;
 
-    tx_seq wb2uart_sequencer_in_h;
-    rx_seq rx_frame_sequencer_in_h;
+    tx_sequencer_in wb2uart_sequencer_in_h;
+    rx_sequencer_in rx_frame_sequencer_in_h;
 
     wb2uart_driver wb2uart_driver_h;
     wb2uart_monitor wb2uart_monitor_h;
@@ -23,8 +26,8 @@ class agent_in extends uvm_agent;
         aport=new("aport",this);
         bport=new("aport",this);
 
-        wb2uart_sequencer_in_h=tx_seq::type_id::create("wb2uart_sequencer_in_h",this);
-        rx_frame_sequencer_in_h=rx_seq::type_id::create("rx_frame_sequencer_in_h",this);
+        wb2uart_sequencer_in_h=tx_sequencer_in::type_id::create("wb2uart_sequencer_in_h",this);
+        rx_frame_sequencer_in_h=rx_sequencer_in::type_id::create("rx_frame_sequencer_in_h",this);
 
         wb2uart_driver_h=wb2uart_driver::type_id::create("wb2uart_driver_h",this);
         wb2uart_monitor_h=wb2uart_monitor::type_id::create("wb2uart_monitor_in_h",this);

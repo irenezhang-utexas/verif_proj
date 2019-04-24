@@ -7,7 +7,7 @@ import uart_pkg::*;
 
 
 class wb2uart_subscriber extends uvm_subscriber #(wb2uart);
-    `uvm_component_utils(wb2uart)
+    `uvm_component_utils(wb2uart_subscriber)
 
     logic [15:0] 	i_wb_adr;
     logic		i_wb_we;
@@ -57,7 +57,7 @@ class wb2uart_subscriber extends uvm_subscriber #(wb2uart);
 
 
     function void write(wb2uart t);
-        i_wb_adr = t.i_wb_adr[15:0];
+        i_wb_adr = t.i_wb_addr_lo;
         i_wb_we  = t.i_wb_we;
         i_wb_stb = t.i_wb_stb;
         inputs.sample();

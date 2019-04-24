@@ -65,7 +65,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                 end
                 //sening stop
                 if (bit_counter == 9) begin
-                    uart_vi_in.i_uart_rxd = req.stop_bits[0];
+                    uart_vi_in.i_uart_rxd = req.stop_bits;
                 end
                 bit_counter++;
         end
