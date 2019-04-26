@@ -1,7 +1,7 @@
 `include "uvm_macros.svh"
 import uart_pkg::*;
 
-class wb2uart_driver extends uvm_driver#(uart_tx_frame);
+class wb2uart_driver extends uvm_driver#(wb2uart);
     `uvm_component_utils(wb2uart_driver)
 
     amber_dut_config dut_config_0;
@@ -12,7 +12,7 @@ class wb2uart_driver extends uvm_driver#(uart_tx_frame);
     endfunction: new
 
     function void build_phase(uvm_phase phase);
-       assert( uvm_config_db #(amber_dut_config)::get(this, "", "dut_config", dut_config_0));
+       assert( uvm_config_db #(amber_dut_config)::get(this, "", "amber_dut_config", dut_config_0));
        dut_vi_in = dut_config_0.dut_vi_in;
     endfunction : build_phase
    

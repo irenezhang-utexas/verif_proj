@@ -16,19 +16,19 @@ class uart2wb_monitor extends uvm_monitor;
     function void build_phase(uvm_phase phase);
         dut_config_0=amber_dut_config::type_id::create("config");
         aport=new("aport",this);
-        assert( uvm_config_db #(amber_dut_config)::get(this, "", "dut_config", dut_config_0) );
+        assert( uvm_config_db #(amber_dut_config)::get(this, "", "amber_dut_config", dut_config_0) );
         dut_vi_out=dut_config_0.dut_vi_out;
 
     endfunction: build_phase
 
     task run_phase(uvm_phase phase);
-    @(posedge dut_vi_out.clk);
-    @(posedge dut_vi_out.clk);
+    @(posedge dut_vi_out.i_clk);
+    @(posedge dut_vi_out.i_clk);
       forever
       begin
         uart2wb tx;
         
-        @(posedge dut_vi_out.clk);
+        @(posedge dut_vi_out.i_clk);
         tx = uart2wb::type_id::create("tx");
         // assign them to the transaction "tx"
 	tx.i_clk	= dut_vi_out.i_clk;

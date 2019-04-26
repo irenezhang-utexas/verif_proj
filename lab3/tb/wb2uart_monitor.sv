@@ -16,17 +16,17 @@ class wb2uart_monitor extends uvm_monitor;
     function void build_phase(uvm_phase phase);
         dut_config_0=amber_dut_config::type_id::create("config");
         aport=new("aport",this);
-        assert( uvm_config_db #(amber_dut_config)::get(this, "", "dut_config", dut_config_0) );
+        assert( uvm_config_db #(amber_dut_config)::get(this, "", "amber_dut_config", dut_config_0) );
         dut_vi_in=dut_config_0.dut_vi_in;
 
     endfunction: build_phase
 
     task run_phase(uvm_phase phase);
-    @(posedge dut_vi_in.clk);
+    @(posedge dut_vi_in.i_clk);
       forever
       begin
         wb2uart tx;
-        @(posedge dut_vi_in.clk);
+        @(posedge dut_vi_in.i_clk);
         tx = wb2uart::type_id::create("tx");
         // assign them to the transaction "tx"
 	//tx.i_clk	= dut_vi_in.i_clk;
