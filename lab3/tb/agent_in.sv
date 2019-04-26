@@ -24,7 +24,7 @@ class agent_in extends uvm_agent;
 
     function void build_phase(uvm_phase phase);
         aport=new("aport",this);
-        bport=new("aport",this);
+        bport=new("bport",this);
 
         wb2uart_sequencer_in_h=tx_sequencer_in::type_id::create("wb2uart_sequencer_in_h",this);
         rx_frame_sequencer_in_h=rx_sequencer_in::type_id::create("rx_frame_sequencer_in_h",this);

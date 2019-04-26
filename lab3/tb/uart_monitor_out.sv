@@ -18,7 +18,7 @@ class uart_monitor_out extends uvm_monitor;
     function void build_phase(uvm_phase phase);
         uart_config_0=uart_dut_config::type_id::create("config");
         aport=new("aport",this);
-        assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", uart_config_0) );
+        assert( uvm_config_db #(uart_dut_config)::get(this, "", "uart_dut_config", uart_config_0) );
         uart_vi_out=uart_config_0.dut_vi_out;
 
     endfunction: build_phase

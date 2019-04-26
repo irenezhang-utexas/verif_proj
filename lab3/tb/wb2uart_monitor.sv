@@ -16,7 +16,7 @@ class wb2uart_monitor extends uvm_monitor;
     function void build_phase(uvm_phase phase);
         dut_config_0=amber_dut_config::type_id::create("config");
         aport=new("aport",this);
-        assert( uvm_config_db #(amber_dut_config)::get(this, "", "dut_config", dut_config_0) );
+        assert( uvm_config_db #(amber_dut_config)::get(this, "", "amber_dut_config", dut_config_0) );
         dut_vi_in=dut_config_0.dut_vi_in;
 
     endfunction: build_phase

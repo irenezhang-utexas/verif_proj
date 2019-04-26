@@ -86,15 +86,15 @@ initial begin
     // TODO: what does the following do
     uvm_config_db #(virtual dut_in)::set(null,"uvm_test_top","dut_vi_in",dut_in1);
     uvm_config_db #(virtual dut_out)::set(null,"uvm_test_top","dut_vi_out",dut_out1);
-    uvm_config_db #(virtual uart_in)::set(null,"uvm_test_top","uart_vi_in",uart_in1);
-    uvm_config_db #(virtual uart_out)::set(null,"uvm_test_top","uart_vi_out",uart_out1);
+    uvm_config_db #(virtual uart_in)::set(null,"uvm_test_top","dut_vi_in",uart_in1);
+    uvm_config_db #(virtual uart_out)::set(null,"uvm_test_top","dut_vi_out",uart_out1);
     // calls $finish after all phases finish
     uvm_top.finish_on_completion=1;
 
-    fork
+    //fork
     run_test("test1");
     //run_test("test2");
-	join_any
+	//join_any
 end
 
 endmodule: top

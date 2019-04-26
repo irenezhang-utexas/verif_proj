@@ -19,9 +19,7 @@ import uart_pkg::*;
 	} 
    
 	// constraint to disable uart_stb; used to test fifo full
-	constraint fifo_full {
-		i_wb_stb == 1'b0;
-	}
+	//constraint fifo_full {i_wb_stb == 1'b0;}
 
         function new(string name = "");
             super.new(name);
@@ -37,13 +35,13 @@ import uart_pkg::*;
     class uart_rx_frame extends uvm_sequence_item;
 
 	rand bit start_bit;
-	rand bit [7:0] payload;
+	rand logic [7:0] payload;
 	rand bit stop_bits;
 
   	// Default constraints  //lab1_note2
 	constraint default_start_bit 	{ start_bit == 1'b0;}
 	constraint default_stop_bits 	{ stop_bits == 2'b11;}
-	constraint fifo_empty 		{ start_bit == 1'b1;}
+	//constraint fifo_empty 		{ start_bit == 1'b1;}
 
 
   	`uvm_object_utils_begin(uart_rx_frame)
@@ -99,8 +97,53 @@ import uart_pkg::*;
     endclass: uart_tx_frame
 
 
+
+
+    class simple_rx extends uvm_sequence #(uart_rx_frame);
+        `uvm_object_utils(simple_rx)
+
+        function new(string name = "");
+            super.new(name);
+        endfunction: new
+
+        task body;
+                uart_rx_frame tx;
+                tx=uart_rx_frame::type_id::create("tx");
+                start_item(tx);
+
+                  //tx.fifo_full.constraint_mode(0); 
+                  //tx.fifo_empty.constraint_mode(0); 
+
+                assert(tx.randomize());
+                finish_item(tx);
+        endtask: body
+
+    endclass: simple_rx
+
+    class simple_tx extends uvm_sequence #(wb2uart);
+        `uvm_object_utils(simple_tx)
+
+        function new(string name = "");
+            super.new(name);
+        endfunction: new
+
+        task body;
+                wb2uart tx;
+                tx=wb2uart::type_id::create("tx");
+                start_item(tx);
+
+                  //tx.fifo_full.constraint_mode(0); 
+                  //tx.fifo_empty.constraint_mode(0); 
+
+                assert(tx.randomize());
+                finish_item(tx);
+        endtask: body
+
+    endclass: simple_tx
+
     class rx_seq extends uvm_sequence #(uart_rx_frame);
         `uvm_object_utils(rx_seq)
+        `uvm_declare_p_sequencer(uvm_sequencer#(uart_rx_frame))
 
         function new(string name = "");
             super.new(name);
@@ -112,20 +155,14 @@ import uart_pkg::*;
 	    `uvm_info("general test", "\n--------------------------start------------------------------\n", UVM_LOW);
 	    repeat(10)
 	    begin
-
-            	uart_rx_frame tx;
-            	tx=uart_rx_frame::type_id::create("tx");
-            	start_item(tx);
-
-	    	      //tx.fifo_full.constraint_mode(0); 
-	    	      //tx.fifo_empty.constraint_mode(0); 
-
-            	assert(tx.randomize());
-            	finish_item(tx);
+            simple_rx seq;
+            seq = simple_rx::type_id::create("seq");
+            assert( seq.randomize());
+            seq.start(p_sequencer);
 
 	    end
 
-	    // general test: uart always receives data; amber core does not pops data
+	    /*// general test: uart always receives data; amber core does not pops data
 	    `uvm_info("fifo full test", "\n--------------------------start------------------------------\n", UVM_LOW);
 	    repeat(10)
 	    begin
@@ -174,15 +211,16 @@ import uart_pkg::*;
             	assert(tx.randomize());
             	finish_item(tx);
 
-	    end
+	    end*/
 
 
         endtask: body
     endclass: rx_seq
 
 
-class tx_seq extends uvm_sequence #(uart_tx_frame);
+class tx_seq extends uvm_sequence #(wb2uart);
         `uvm_object_utils(tx_seq)
+        `uvm_declare_p_sequencer(uvm_sequencer#(wb2uart))
 
         function new(string name = "");
             super.new(name);
@@ -195,15 +233,10 @@ class tx_seq extends uvm_sequence #(uart_tx_frame);
         repeat(10)
         begin
 
-                uart_tx_frame tx;
-                tx=uart_tx_frame::type_id::create("tx");
-                start_item(tx);
-
-            //tx.fifo_full.constraint_mode(0); 
-            //tx.fifo_empty.constraint_mode(0); 
-
-                assert(tx.randomize());
-                finish_item(tx);
+            simple_tx seq;
+            seq = simple_tx::type_id::create("seq");
+            assert( seq.randomize());
+            seq.start(p_sequencer);
 
         end
 

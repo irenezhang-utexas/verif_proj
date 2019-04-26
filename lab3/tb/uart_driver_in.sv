@@ -15,24 +15,24 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
     endfunction: new
 
     function void build_phase(uvm_phase phase);
-       assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", dut_config_0));
+       assert( uvm_config_db #(uart_dut_config)::get(this, "", "uart_dut_config", dut_config_0));
        uart_vi_in = dut_config_0.dut_vi_in;
     endfunction : build_phase
    
 
 
     task run_phase(uvm_phase phase);
-        fork
+            fork
             get_and_drive();
-        join
+            join
     endtask : run_phase
 
     task get_and_drive();
         while (1) begin
-            fork
+                fork
                 begin
                     forever begin
-                        //@(posedge uart_vi_in.i_uart_clk)//this must be synconized with sampler in monitor
+                        @(posedge uart_vi_in.i_uart_clk)//this must be synconized with sampler in monitor
                         if(!uart_vi_in.o_uart_rts_n) begin
                             seq_item_port.get_next_item(req);
                             sent_uart_frame(req);
@@ -41,8 +41,8 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                             
                     end
                 end
-            join_any
-            disable fork;
+                join_any
+                disable fork;
         end
     endtask : get_and_drive
 

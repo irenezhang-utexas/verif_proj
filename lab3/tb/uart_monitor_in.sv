@@ -19,7 +19,7 @@ class uart_monitor_in extends uvm_monitor;
 
         aport=new("aport",this);
 
-        assert( uvm_config_db #(uart_dut_config)::get(this, "", "dut_config", dut_config_0) );
+        assert( uvm_config_db #(uart_dut_config)::get(this, "", "uart_dut_config", dut_config_0) );
 
         uart_vi_in=dut_config_0.dut_vi_in;
 
