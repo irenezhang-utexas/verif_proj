@@ -28,7 +28,8 @@ input [3:0]		    rxd_state
 );
 
 // 1.ASSUMPTIONS
-
+NO_INTERRUPT: assume property (@(posedge clk) 
+									(i_wb_adr[15:0] != AMBER_UART_IIR) );
 // 2. ASSERTIONS
 
 // 2.1 tx FIFO
