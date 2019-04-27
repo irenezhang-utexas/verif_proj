@@ -218,6 +218,26 @@ WB_READ: cover property (i_wb_stb && ~i_wb_we);
 
 WB_WRITE: cover property (i_wb_stb && i_wb_we);
 
+// cover address
+CID0_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_CID0));
+CID1_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_CID1));
+CID2_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_CID2));
+CID3_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_CID3));
+PID0_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_PID0));
+PID1_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_PID1));
+PID2_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_PID2));
+PID3_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_PID3));
+DR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_DR ));
+RSR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_RSR));
+LCRH_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_LCRH ));
+LCRM_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_LCRM));
+LCRL_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_LCRL));
+CR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_CR ));
+FR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_FR));
+IIR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_IIR));
+ICR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_ICR));
+
+
 
 
 
