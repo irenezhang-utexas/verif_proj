@@ -46,7 +46,7 @@ TX_STATE_RANGE: assert property(@(posedge clk) txd_state <= 4'd12 );
 // 2.1.3 TODO: check tx_state no deadlock
 
 // 2.1.4 FIFO no change when full
-TX_FIFO_FULL: assert property (@(posedge clk) tx_fifo_full |=> (tx_fifo_wp == $(tx_fifo_wp,1));
+TX_FIFO_FULL: assert property (@(posedge clk) tx_fifo_full |=> (tx_fifo_wp == $past(tx_fifo_wp,1));
 
 // 2.2 rx FIFO
 // 2.2.1 check rx_state sequence
@@ -62,7 +62,7 @@ RX_STATE_RANGE: assert property(@(posedge clk) rxd_state <= 4'd12 );
 // 2.2.3 TODO: check rx_state no deadlock
 
 // 2.2.4 FIFO no change when full
-RX_FIFO_FULL: assert property (@(posedge clk) rx_fifo_full |=> ~rxen);
+RX_FIFO_FULL: assert property (@(posedge clk) rx_fifo_full |=> ~uart.rxen);
 // TODO: wr ptr not change when full
 
 // 2.2.4.1 TODO: rx fifo state == IDLE
@@ -110,8 +110,8 @@ TX_FULL_FELL_ON_PUSH: assert property (@(posedge clk) $fell(tx_fifo_empty) |-> $
 
 // 2.3.1 check tx_fifo_wp
 // 2.3.1.1 pointer change < 2
-TX_RPTR_CHANGE: assert property ( @(posedge clk) rx_fifo_wp - $past(rx_fifo_wp,1) < 2); 
-TX_WPTR_CHANGE: assert property ( @(posedge clk) tx_fifo_wp - $past(tx_fifo_wp,1) < 2); 
+TX_RPTR_CHANGE: assert property ( @(posedge clk) (rx_fifo_wp - $past(rx_fifo_wp,1)) < 2); 
+TX_WPTR_CHANGE: assert property ( @(posedge clk) (tx_fifo_wp - $past(tx_fifo_wp,1)) < 2); 
 
 // 2.3.2 check rx_fifo_wp
 // 2.3.2.1 pointer change < 2
@@ -123,8 +123,8 @@ RX_FIFO_POP0: assert property ( @(posedge clk) rx_fifo_rp != $past(rx_fifo_rp,1)
 RX_FIFO_POP1: assert property ( @(posedge clk) rx_fifo_rp != $past(rx_fifo_rp,1) |-> $past(i_wb_adr,1)[15:0] == AMBER_UART_DR);
 
 // 2.3.4 check tx_fifo_push on addr == AMBER_UART_DR
-TX_FIFO_POP0: assert property ( @(posedge clk) tx_fifo_rp != $past(rx_fifo_rp,1) |-> $past(i_wb_stb,2) && $past(i_wb_we,2));
-TX_FIFO_POP1: assert property ( @(posedge clk) tx_fifo_rp != $past(rx_fifo_rp,1) |-> $past(i_wb_adr,1)[15:0] == AMBER_UART_DR);
+TX_FIFO_POP0: assert property ( @(posedge clk) tx_fifo_wp != $past(tx_fifo_wp,1) |-> $past(i_wb_stb,2) && $past(i_wb_we,2));
+TX_FIFO_POP1: assert property ( @(posedge clk) tx_fifo_wp != $past(tx_fifo_wp,1) |-> $past(i_wb_adr,1)[15:0] == AMBER_UART_DR);
 
 // 2.4.5 check fifo not enabled
 // 2.4.5.1 wr ptrs no change
@@ -158,6 +158,22 @@ AMBER_UART_PID1_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_U
 AMBER_UART_PID2_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_PID2) |-> (o_wb_dat == 32'h04));
 AMBER_UART_PID3_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_PID3) |-> (o_wb_dat == 32'h00));
 
+
+AMBER_UART_DR_RD0: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_DR) && fifo_enable |-> (o_wb_dat == {24'h0,rx_fifo[rx_fifo_rp[3:0]]}));
+AMBER_UART_DR_RD1: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_DR) && ~fifo_enable |-> (o_wb_dat == {24'h0,rx_fifo[0]}));
+
+AMBER_UART_RSR_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_RSR) |-> (o_wb_dat == {24'h0, uart_rsr_reg}));
+AMBER_UART_LCRH_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_LCRH) |-> (o_wb_dat == {24'h0, uart_lcrh_reg}));
+AMBER_UART_LCRM_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_LCRM) |-> (o_wb_dat == {24'h0, uart_lcrm_reg}));
+AMBER_UART_LCRL_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_LCRL) |-> (o_wb_dat == {24'h0, uart_lcrl_reg}));
+AMBER_UART_CR_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_CR) |-> (o_wb_dat == {24'h0, uart_cr_reg}));
+
+wire uart_fr_reg = {tx_fifo_empty, rx_fifo_full, tx_fifo_full,rx_fifo_empty, !tx_fifo_empty, 1'd1, 1'd1, !uart0_cts_n_d[3]};
+
+wire uart_iir_reg = {6'd0,tx_interrupt, rx_interrupt, 1'd0};
+
+AMBER_UART_FR_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_CR) |-> (o_wb_dat == {24'h0, uart_cr_reg}));
+AMBER_UART_IIR_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_IIR) |-> (o_wb_dat == {24'h0, uart_iir_reg}));
 
 
 // 2.4.2.1 check default read
