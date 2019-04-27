@@ -148,8 +148,15 @@ FIFO_DIS_RD_CNT: assert property ( @(posedge clk) !fifo_enable |=> rx_fifo_count
 
 
 // 2.4.2 check read data
+AMBER_UART_CID0_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_CID0) |-> (o_wb_dat == 32'h0d));
+AMBER_UART_CID1_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_CID1) |-> (o_wb_dat == 32'hf0));
+AMBER_UART_CID2_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_CID2) |-> (o_wb_dat == 32'h05));
+AMBER_UART_CID3_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_CID3) |-> (o_wb_dat == 32'hb1));
 
-
+AMBER_UART_PID0_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_PID0) |-> (o_wb_dat == 32'h10));
+AMBER_UART_PID1_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_PID1) |-> (o_wb_dat == 32'h10));
+AMBER_UART_PID2_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_PID2) |-> (o_wb_dat == 32'h04));
+AMBER_UART_PID3_RD: assert property (wb_start_read && (i_wb_adr[15:0] == AMBER_UART_PID3) |-> (o_wb_dat == 32'h00));
 
 
 
