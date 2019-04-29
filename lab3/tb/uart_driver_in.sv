@@ -35,7 +35,6 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                         @(posedge uart_vi_in.i_uart_clk)//this must be synconized with sampler in monitor
                         if(!uart_vi_in.o_uart_rts_n) begin
                             seq_item_port.get_next_item(req);
-                            //`uvm_info("general test", "\nget_and_drive\n", UVM_LOW);
                             sent_uart_frame(req);
                             seq_item_port.item_done();
                         end
@@ -51,17 +50,17 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
         int bit_counter = 0;
 
         //wait untial o_uart_rts_o is low
-       //
+        `uvm_info("sent_uart_frame test", "\n", UVM_LOW);
 
         while(bit_counter < 10) begin
             @(posedge uart_vi_in.i_uart_clk)
+                `uvm_info("sent_uart_frame", $sformatf("rx_bit counter %d",bit_counter), UVM_LOW);
                 //sending start bity
                 if(bit_counter == 0)begin
                     uart_vi_in.i_uart_rxd = req.start_bit;
                 end
                 //sending data
                 if ((bit_counter > 0) && (bit_counter < 9)) begin
-                    wait(uart_vi_in.o_uart_rts_n);
                     uart_vi_in.i_uart_rxd = req.payload[bit_counter-1];
                 end
                 //sening stop

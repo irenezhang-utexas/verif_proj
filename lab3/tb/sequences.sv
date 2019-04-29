@@ -40,7 +40,7 @@ import uart_pkg::*;
 
   	// Default constraints  //lab1_note2
 	constraint default_start_bit 	{ start_bit == 1'b0;}
-	constraint default_stop_bits 	{ stop_bits == 2'b11;}
+	constraint default_stop_bits 	{ stop_bits == 1'b1;}
 	//constraint fifo_empty 		{ start_bit == 1'b1;}
 
 
@@ -114,6 +114,8 @@ import uart_pkg::*;
                   //tx.fifo_full.constraint_mode(0); 
                   //tx.fifo_empty.constraint_mode(0); 
                 `uvm_info("general test", "\n--test--\n", UVM_LOW);
+//		rx.randomize();
+//		`uvm_info("test:",$sformatf("rx=%b",rx.payload),UVM_LOW);
                 assert(rx.randomize());
                 finish_item(rx);
         endtask: body
