@@ -141,10 +141,17 @@ FIFO_DIS_RD_CNT: assert property ( @(posedge clk) !fifo_enable |=> rx_fifo_count
 // 2.4 data correctness
 
 // 2.4.1 check write data
+sequence wr_data_check(REG_ADR);
+wb_start_write && (i_wb_adr[15:0] == REG_ADR);
+endsequence
 
-
-
-
+AMBER_UART_RSR_WR: assert property (wr_data_check(AMBER_UART_RSR) |-> usart_rsr_reg[7:0] == wb_wdata32[7:0]);
+AMBER_UART_LCRH_WR: assert property (wr_data_check(AMBER_UART_LCRH) |-> usart_lcrh_reg[7:0] == wb_wdata32[7:0]);
+AMBER_UART_LCRM_WR: assert property (wr_data_check(AMBER_UART_LCRM) |-> usart_lcrm_reg[7:0] == wb_wdata32[7:0]);
+AMBER_UART_LCRL_WR: assert property (wr_data_check(AMBER_UART_LCRL) |-> usart_lcrl_reg[7:0] == wb_wdata32[7:0]);
+AMBER_UART_CR_WR: assert property (wr_data_check(AMBER_UART_CR) |-> usart_cr_reg[7:0] == wb_wdata32[7:0]);
+TX_FIFO_WR0: assert property (tx_fifo_push_not_full && fifo_enable |-> tx_fifo[tx_fifo_wp[3:0]] == wb_wdata32[7:0]);
+TX_FIFO_WR1: assert property (tx_fifo_push_not_full && fifo_enable |-> tx_fifo[0] == wb_wdata32[7:0]);
 
 
 
@@ -217,6 +224,8 @@ RX_FIFO_FULL: cover property (uart.rx_fifo_full == 1'b1);
 WB_READ: cover property (i_wb_stb && ~i_wb_we);
 
 WB_WRITE: cover property (i_wb_stb && i_wb_we);
+
+// cover all states
 
 // cover address
 CID0_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_CID0));
