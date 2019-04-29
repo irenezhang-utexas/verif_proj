@@ -15,16 +15,17 @@ class test1 extends uart_test;
 	tx_seq seq_tx;
 	rx_seq seq_rx;
 
-	//seq_tx = tx_seq::type_id::create("seq_tx");
+	seq_tx = tx_seq::type_id::create("seq_tx");
 	seq_rx = rx_seq::type_id::create("seq_rx");
 
-	//assert( seq_tx.randomize() );
+	assert( seq_tx.randomize() );
 	assert( seq_rx.randomize() );
 	phase.raise_objection(this);
 
-	//seq_tx.start(env_h.agent_in_h.wb2uart_sequencer_in_h);
+	fork
 	seq_rx.start(env_h.agent_in_h.rx_frame_sequencer_in_h);
-
+	seq_tx.start(env_h.agent_in_h.wb2uart_sequencer_in_h);
+	join
 	phase.drop_objection(this);
     endtask: run_phase     
 endclass: test1

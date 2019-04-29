@@ -21,6 +21,7 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
       begin
         wb2uart tx;
         
+        `uvm_info("sent_uart_frame test", "\n", UVM_LOW);
         @(posedge dut_vi_in.i_clk);
         seq_item_port.get(tx);
         
