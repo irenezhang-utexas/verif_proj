@@ -35,6 +35,7 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                         @(posedge uart_vi_in.i_uart_clk)//this must be synconized with sampler in monitor
                         if(!uart_vi_in.o_uart_rts_n) begin
                             seq_item_port.get_next_item(req);
+                            //`uvm_info("general test", "\nget_and_drive\n", UVM_LOW);
                             sent_uart_frame(req);
                             seq_item_port.item_done();
                         end

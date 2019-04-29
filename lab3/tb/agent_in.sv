@@ -30,7 +30,7 @@ class agent_in extends uvm_agent;
         rx_frame_sequencer_in_h=rx_sequencer_in::type_id::create("rx_frame_sequencer_in_h",this);
 
         wb2uart_driver_h=wb2uart_driver::type_id::create("wb2uart_driver_h",this);
-        wb2uart_monitor_h=wb2uart_monitor::type_id::create("wb2uart_monitor_in_h",this);
+        wb2uart_monitor_h=wb2uart_monitor::type_id::create("wb2uart_monitor_h",this);
 
         uart_driver_in_h=uart_driver_in::type_id::create("uart_driver_in_h",this);
         uart_monitor_in_h=uart_monitor_in::type_id::create("uart_monitor_in_h",this);

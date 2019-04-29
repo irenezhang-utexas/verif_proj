@@ -9,7 +9,7 @@ import uart_pkg::*;
 
         rand logic [15:0] 	i_wb_addr_hi;
         rand logic [15:0] 	i_wb_addr_lo;
-	   rand logic [31:0]	i_wb_dat;
+	    rand logic [31:0]	i_wb_dat;
         rand logic		i_wb_we;
         rand logic 		i_wb_stb;
 
@@ -107,15 +107,15 @@ import uart_pkg::*;
         endfunction: new
 
         task body;
-                uart_rx_frame tx;
-                tx=uart_rx_frame::type_id::create("tx");
-                start_item(tx);
+                uart_rx_frame rx;
+                rx=uart_rx_frame::type_id::create("rx");
+                start_item(rx);
 
                   //tx.fifo_full.constraint_mode(0); 
                   //tx.fifo_empty.constraint_mode(0); 
-
-                assert(tx.randomize());
-                finish_item(tx);
+                `uvm_info("general test", "\n--test--\n", UVM_LOW);
+                assert(rx.randomize());
+                finish_item(rx);
         endtask: body
 
     endclass: simple_rx
@@ -155,12 +155,13 @@ import uart_pkg::*;
 	    `uvm_info("general test", "\n--------------------------start------------------------------\n", UVM_LOW);
 	    repeat(10)
 	    begin
+            //`uvm_info("general test", "counter", UVM_LOW);
             simple_rx seq;
             seq = simple_rx::type_id::create("seq");
             assert( seq.randomize());
             seq.start(p_sequencer);
-
 	    end
+
 
 	    /*// general test: uart always receives data; amber core does not pops data
 	    `uvm_info("fifo full test", "\n--------------------------start------------------------------\n", UVM_LOW);
