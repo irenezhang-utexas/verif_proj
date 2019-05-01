@@ -81,16 +81,16 @@ function void UART_scoreboard::compare_1;
     if (tx_in_1.i_wb_dat[7:0] == tx_out_1.tx_frame[10:3]) begin
         tx_in_1.convert2string();
         tx_out_1.convert2string();
-        uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
-        uvm_report_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
-        $display("The result is matched");
+        `uvm_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
+        `uvm_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
+        `uvm_info("The result is matched ", "", UVM_LOW);
     end
     else begin
         tx_in_1.convert2string();
         tx_out_1.convert2string();
-        uvm_report_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
-        uvm_report_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
-        $display("The result is not matched!!!");
+        `uvm_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
+        `uvm_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
+        `uvm_info("The result is not matched!!!" ,"", UVM_LOW);
     end
 endfunction
 
@@ -99,15 +99,15 @@ function void UART_scoreboard::compare_2;
     if (tx_in_2.payload == tx_out_2.o_wb_dat[7:0]) begin
         tx_in_2.convert2string();
         tx_out_2.convert2string();
-        uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
-        uvm_report_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
-        $display("The result is matched");
+        `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
+        `uvm_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
+        `uvm_info("The result is matched", "", UVM_LOW);
     end
     else begin
         tx_in_2.convert2string();
         tx_out_2.convert2string();
-        uvm_report_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
-        uvm_report_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
-        $display("The result is not matched!!!");
+        `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
+        `uvm_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
+        `uvm_info("The result is not matched!!!", "", UVM_LOW);
     end
 endfunction
