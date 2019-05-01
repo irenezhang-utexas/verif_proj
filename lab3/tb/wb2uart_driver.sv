@@ -21,15 +21,15 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
       begin
         wb2uart tx;
         
-        `uvm_info("sent_uart_frame test", "\n", UVM_LOW);
+        `uvm_info("sent_wb_frame test", "\n", UVM_LOW);
         @(posedge dut_vi_in.i_clk);
-        seq_item_port.get(tx);
-        
+        seq_item_port.get_next_item(tx);
         // interface of dut_vi_in
-	dut_vi_in.i_wb_adr	= {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
-	dut_vi_in.i_wb_we	= tx.i_wb_we;
-	dut_vi_in.i_wb_stb	= tx.i_wb_stb;
-
+	     dut_vi_in.i_wb_adr	= {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
+	     dut_vi_in.i_wb_we	= tx.i_wb_we;
+	     dut_vi_in.i_wb_stb	= tx.i_wb_stb;
+        repeat(2000) @(posedge dut_vi_in.i_clk);
+        seq_item_port.item_done();
       end
     endtask: run_phase
 
