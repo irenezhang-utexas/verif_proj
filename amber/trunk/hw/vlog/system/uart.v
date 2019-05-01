@@ -349,8 +349,8 @@ always @ ( posedge i_clk )
 assign o_uart_int   = ( tx_interrupt & uart_cr_reg[5] )  |  // UART transmit interrupt w/ enable
                       ( rx_interrupt & uart_cr_reg[4] )  ;  // UART receive  interrupt w/ enable
 
-assign fifo_enable = uart_lcrh_reg[4];
-
+//assign fifo_enable = uart_lcrh_reg[4];
+assign fifo_enable = 1;
 
        
 // ========================================================
@@ -838,7 +838,7 @@ initial
 
 // Transmit Interrupts
 always @ ( posedge i_clk )
-    if ( wb_start_write && i_wb_adr[15:0] == AMBER_UART_ICR )
+    if ( wb_start_write && i_wb_adr[15:0] == AMBER_ f_ICR )
             ;
     else if ( fifo_enable ) 
         begin

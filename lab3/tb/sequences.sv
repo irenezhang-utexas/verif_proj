@@ -15,9 +15,13 @@ import uart_pkg::*;
 
 	// wb addr is uart addr
         constraint uart_addr {
-		i_wb_addr_lo dist {AMBER_UART_DR := 40, [1:65535] := 50};
-	} 
-   
+            i_wb_addr_lo dist {AMBER_UART_DR := 40, [1:65535] := 50};
+	   } 
+        constraint uart_fifo_enable{
+            i_wb_addr_lo == AMBER_UART_LCRH;
+            i_wb_dat == 16;
+
+        }
 	// constraint to disable uart_stb; used to test fifo full
 	//constraint fifo_full {i_wb_stb == 1'b0;}
 
@@ -133,7 +137,8 @@ import uart_pkg::*;
                 wb2uart tx;
                 tx=wb2uart::type_id::create("tx");
                 start_item(tx);
-
+                tx.uart_fifo_enable.constraint_mode(0);
+                tx.uart_addr.constraint_mode(1);
                   //tx.fifo_full.constraint_mode(0); 
                   //tx.fifo_empty.constraint_mode(0); 
 
@@ -142,6 +147,28 @@ import uart_pkg::*;
         endtask: body
 
     endclass: simple_tx
+
+        class simple_fifo_enable extends uvm_sequence #(wb2uart);
+        `uvm_object_utils(simple_fifo_enable)
+
+        function new(string name = "");
+            super.new(name);
+        endfunction: new
+
+        task body;
+                wb2uart tx;
+                tx=wb2uart::type_id::create("tx");
+                start_item(tx);
+                tx.uart_fifo_enable.constraint_mode(1);
+                tx.uart_addr.constraint_mode(0);
+                  //tx.fifo_full.constraint_mode(0); 
+                  //tx.fifo_empty.constraint_mode(0); 
+
+                assert(tx.randomize());
+                finish_item(tx);
+        endtask: body
+
+    endclass: simple_fifo_enable
 
     class rx_seq extends uvm_sequence #(uart_rx_frame);
         `uvm_object_utils(rx_seq)
@@ -154,7 +181,7 @@ import uart_pkg::*;
         task body;
 
 	    // general test: uart always receives data; amber core always pops data
-	    `uvm_info("general test", "\n--------------------------start------------------------------\n", UVM_LOW);
+	    `uvm_info("rx_test", "\n--------------------------start------------------------------\n", UVM_LOW);
 	    repeat(10)
 	    begin
             //`uvm_info("general test", "counter", UVM_LOW);
@@ -231,8 +258,21 @@ class tx_seq extends uvm_sequence #(wb2uart);
 
         task body;
 
+        `uvm_info("turn on enable signal", "\n--------------------------start------------------------------\n", UVM_LOW);
+        repeat(1)
+        begin
+
+            simple_fifo_enable seq_enable;
+            seq_enable = simple_fifo_enable::type_id::create("seq_enable");
+            assert( seq_enable.randomize());
+            seq_enable.start(p_sequencer);
+
+        end
+
+
+
         // general test: uart always receives data; amber core always pops data
-        `uvm_info("general test", "\n--------------------------start------------------------------\n", UVM_LOW);
+        `uvm_info("tx_test", "\n--------------------------start------------------------------\n", UVM_LOW);
         repeat(10)
         begin
 

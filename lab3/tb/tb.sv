@@ -90,7 +90,8 @@ initial begin
     uvm_config_db #(virtual uart_out)::set(null,"uvm_test_top","dut_vi_out",uart_out1);
     // calls $finish after all phases finish
     uvm_top.finish_on_completion=1;
-
+    uvm_report_info("Uartclock ", $sformatf("uartclock = : %d\n",CLK_PERIOD_HALF * 2), UVM_LOW);
+    uvm_report_info("wbclock ", $sformatf("wbclock = : %d\n",UART_BIT_PERIOD_HALF * 2), UVM_LOW);
     //fork
     run_test("test1");
     //run_test("test2");
