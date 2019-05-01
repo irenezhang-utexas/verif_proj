@@ -26,7 +26,7 @@ import uart_pkg::*;
         endfunction: new
 
         function string convert2string;
-            convert2string={$sformatf("wb_addr: %b, wb_we: %b, wb_stb: %b\n",{i_wb_addr_hi,i_wb_addr_lo},i_wb_we,i_wb_stb)};
+            convert2string={$sformatf("wb_addr: %b%b, wb_we: %b, wb_stb: %b\n",i_wb_addr_hi,i_wb_addr_lo,i_wb_we,i_wb_stb)};
         endfunction: convert2string
 
     endclass: wb2uart
@@ -71,7 +71,7 @@ import uart_pkg::*;
         endfunction: new;
         
         function string convert2string;
-            convert2string={$sformatf(" o_wb_ack: %b\no_wb_dat: %b",o_wb_ack,o_wb_dat)};
+            convert2string={$sformatf("o_wb_ack: %b\no_wb_dat: %b",o_wb_ack,o_wb_dat)};
         endfunction: convert2string
 
     endclass: uart2wb
@@ -91,7 +91,7 @@ import uart_pkg::*;
         endfunction: new;
         
         function string convert2string;
-            convert2string={$sformatf("tx_frame: %b ",tx_frame)};
+            convert2string=$sformatf("tx_frame: %b ",tx_frame);
         endfunction: convert2string
 
     endclass: uart_tx_frame

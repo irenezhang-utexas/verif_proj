@@ -24,11 +24,14 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
         `uvm_info("sent_uart_frame test", "\n", UVM_LOW);
         @(posedge dut_vi_in.i_clk);
         seq_item_port.get(tx);
-        
+
+        if (tb.dut1.tx_fifo_full) begin        
         // interface of dut_vi_in
-	dut_vi_in.i_wb_adr	= {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
-	dut_vi_in.i_wb_we	= tx.i_wb_we;
-	dut_vi_in.i_wb_stb	= tx.i_wb_stb;
+	  dut_vi_in.i_wb_adr	= {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
+	  dut_vi_in.i_wb_we	= tx.i_wb_we;
+	  dut_vi_in.i_wb_stb	= tx.i_wb_stb;
+	end
+
 
       end
     endtask: run_phase
