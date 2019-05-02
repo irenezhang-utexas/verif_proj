@@ -17,7 +17,7 @@ uart uart_dut(
 	.o_wb_ack	(_out.o_wb_ack), 	// uart ack to wb
 	.o_wb_err	(_out.o_wb_err),	// == 1'b0
 
-	.i_uart_cts_n	(_uart_in.i_uart_cts_n), 	// tx
+	.i_uart_cts_n	(_uart_out.i_uart_cts_n), 	// tx
 	.o_uart_txd	(_uart_out.o_uart_txd), 	// tx serial send
 	.o_uart_rts_n	(_uart_in.o_uart_rts_n), 	// for rx, ack wb to pop fifo
 	.i_uart_rxd	(_uart_in.i_uart_rxd) 	// rx serial receive
@@ -26,7 +26,7 @@ uart uart_dut(
 endmodule: dut
 
 module top;    
-`define AMBER_UART_BAUD 230400
+`define AMBER_UART_BAUD 921600
 `define AMBER_CLK_DIVIDER 20
 `ifndef Veritak
 localparam integer UART_BAUD         = `AMBER_UART_BAUD;            // Hz
@@ -80,18 +80,26 @@ initial begin
 end
 
 
+
 dut dut1(dut_in1,dut_out1,uart_in1,uart_out1);
+
+
+initial begin
+    dut1.uart_dut.tx_fifo_wp = 5'd0;
+    dut1.uart_dut.wb_start_read_d1 = 1'd0;
+    //dut1.uart_dut.i_wb_stb  = 0;
+end
 
 initial begin
     // TODO: what does the following do
     uvm_config_db #(virtual dut_in)::set(null,"uvm_test_top","dut_vi_in",dut_in1);
     uvm_config_db #(virtual dut_out)::set(null,"uvm_test_top","dut_vi_out",dut_out1);
-    uvm_config_db #(virtual uart_in)::set(null,"uvm_test_top","dut_vi_in",uart_in1);
-    uvm_config_db #(virtual uart_out)::set(null,"uvm_test_top","dut_vi_out",uart_out1);
+    uvm_config_db #(virtual uart_in)::set(null,"uvm_test_top","uart_vi_in",uart_in1);
+    uvm_config_db #(virtual uart_out)::set(null,"uvm_test_top","uart_vi_out",uart_out1);
     // calls $finish after all phases finish
     uvm_top.finish_on_completion=1;
-    uvm_report_info("Uartclock ", $sformatf("uartclock = : %d\n",CLK_PERIOD_HALF * 2), UVM_LOW);
-    uvm_report_info("wbclock ", $sformatf("wbclock = : %d\n",UART_BIT_PERIOD_HALF * 2), UVM_LOW);
+    uvm_report_info("wbclock ", $sformatf("wbclock = : %d\n",CLK_PERIOD_HALF * 2), UVM_LOW);
+    uvm_report_info("uartclock ", $sformatf("uartclock = : %d\n",UART_BIT_PERIOD_HALF * 2), UVM_LOW);
     //fork
     run_test("test1");
     //run_test("test2");

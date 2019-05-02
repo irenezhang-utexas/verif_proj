@@ -3,8 +3,8 @@ import uart_pkg::*;
 class uart_dut_config extends uvm_object;
     `uvm_object_utils(uart_dut_config)
 
-    virtual uart_in dut_vi_in;
-    virtual uart_out dut_vi_out;
+    virtual uart_in uart_vi_in;
+    virtual uart_out uart_vi_out;
 
 endclass: uart_dut_config
 

@@ -15,13 +15,21 @@ import uart_pkg::*;
 
 	// wb addr is uart addr
         constraint uart_addr {
-            i_wb_addr_lo dist {AMBER_UART_DR := 40, [1:65535] := 50};
+            i_wb_addr_lo == 0;
+            i_wb_addr_hi == 0;
 	   } 
-        constraint uart_fifo_enable{
+        constraint stb {
+            i_wb_stb dist {1:= 80, 0 := 15};
+       } 
+        constraint wb {
+            //i_wb_we dist {1:= 80, 0 := 15};
+            i_wb_we == 1;
+       } 
+        /*constraint uart_fifo_enable{
             i_wb_addr_lo == AMBER_UART_LCRH;
             i_wb_dat == 16;
 
-        }
+        }*/
 	// constraint to disable uart_stb; used to test fifo full
 	//constraint fifo_full {i_wb_stb == 1'b0;}
 
@@ -30,7 +38,7 @@ import uart_pkg::*;
         endfunction: new
 
         function string convert2string;
-            convert2string={$sformatf("wb_addr: %b%b, wb_we: %b, wb_stb: %b\n",i_wb_addr_hi,i_wb_addr_lo,i_wb_we,i_wb_stb)};
+            convert2string={$sformatf("wb_dat: %b, wb_addr: %b, wb_we: %b, wb_stb: %b\n",i_wb_dat,i_wb_addr_hi,i_wb_addr_lo,i_wb_we,i_wb_stb)};
         endfunction: convert2string
 
     endclass: wb2uart
@@ -137,7 +145,7 @@ import uart_pkg::*;
                 wb2uart tx;
                 tx=wb2uart::type_id::create("tx");
                 start_item(tx);
-                tx.uart_fifo_enable.constraint_mode(0);
+                //tx.uart_fifo_enable.constraint_mode(0);
                 tx.uart_addr.constraint_mode(1);
                   //tx.fifo_full.constraint_mode(0); 
                   //tx.fifo_empty.constraint_mode(0); 
@@ -159,7 +167,7 @@ import uart_pkg::*;
                 wb2uart tx;
                 tx=wb2uart::type_id::create("tx");
                 start_item(tx);
-                tx.uart_fifo_enable.constraint_mode(1);
+                //tx.uart_fifo_enable.constraint_mode(1);
                 tx.uart_addr.constraint_mode(0);
                   //tx.fifo_full.constraint_mode(0); 
                   //tx.fifo_empty.constraint_mode(0); 
@@ -258,7 +266,7 @@ class tx_seq extends uvm_sequence #(wb2uart);
 
         task body;
 
-        `uvm_info("turn on enable signal", "\n--------------------------start------------------------------\n", UVM_LOW);
+       /* `uvm_info("turn on enable signal", "\n--------------------------start------------------------------\n", UVM_LOW);
         repeat(1)
         begin
 
@@ -267,7 +275,7 @@ class tx_seq extends uvm_sequence #(wb2uart);
             assert( seq_enable.randomize());
             seq_enable.start(p_sequencer);
 
-        end
+        end*/
 
 
 

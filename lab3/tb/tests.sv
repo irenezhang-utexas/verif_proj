@@ -25,7 +25,7 @@ class test1 extends uart_test;
 
 
 	fork
-	seq_rx.start(env_h.agent_in_h.rx_frame_sequencer_in_h);
+	//seq_rx.start(env_h.agent_in_h.rx_frame_sequencer_in_h);
 	seq_tx.start(env_h.agent_in_h.wb2uart_sequencer_in_h);
 	join
 	phase.drop_objection(this);
