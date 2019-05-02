@@ -29,18 +29,18 @@ module top;
 `define AMBER_UART_BAUD 921600
 `define AMBER_CLK_DIVIDER 20
 `ifndef Veritak
-localparam integer UART_BAUD         = `AMBER_UART_BAUD;            // Hz
+localparam real UART_BAUD         = `AMBER_UART_BAUD;            // Hz
 
-localparam integer CLK_FREQ          = 800.0 / `AMBER_CLK_DIVIDER ; // MHz
+localparam real  CLK_FREQ          = 800.0 / `AMBER_CLK_DIVIDER ; // MHz
 
-localparam integer UART_BIT_PERIOD   = 1000000000 / UART_BAUD;      // nS
-localparam integer UART_BIT_PERIOD_HALF   = UART_BIT_PERIOD / 2;      // nS
-localparam integer UART_WORD_PERIOD  = ( UART_BIT_PERIOD * 12 );    // nS
-localparam integer CLK_PERIOD        = 1000 / CLK_FREQ;             // nS
-localparam integer CLK_PERIOD_HALF   = CLK_PERIOD / 2;
+localparam real  UART_BIT_PERIOD   = 1000000000 / UART_BAUD;      // nS
+localparam real  UART_BIT_PERIOD_HALF   = UART_BIT_PERIOD / 2;      // nS
+localparam real  UART_WORD_PERIOD  = ( UART_BIT_PERIOD * 12 );    // nS
+localparam real  CLK_PERIOD        = 1000 / CLK_FREQ;             // nS
+localparam real  CLK_PERIOD_HALF   = CLK_PERIOD / 2;
 
-localparam integer CLKS_PER_WORD     = UART_WORD_PERIOD / CLK_PERIOD;
-localparam integer CLKS_PER_BIT      = CLKS_PER_WORD / 12;
+localparam real  CLKS_PER_WORD     = UART_WORD_PERIOD / CLK_PERIOD;
+localparam real  CLKS_PER_BIT      = CLKS_PER_WORD / 12;
 
 // These are rounded to the nearest whole number
 // i.e. 29.485960 -> 29
@@ -72,11 +72,13 @@ end
 initial begin
     uart_in1.i_uart_clk<=0;
     forever #UART_BIT_PERIOD_HALF uart_in1.i_uart_clk<=~uart_in1.i_uart_clk;
+    //forever uart_in1.i_uart_clk <= $root.top.dut1.uart_dut.rx_bit_pulse;
 end
 
 initial begin
     uart_out1.i_uart_clk<=0;
-    forever #UART_BIT_PERIOD_HALF uart_out1.i_uart_clk<=~uart_in1.i_uart_clk;
+    forever #UART_BIT_PERIOD_HALF uart_out1.i_uart_clk<=~uart_out1.i_uart_clk;
+    //forever uart_out1.i_uart_clk = $root.top.dut1.uart_dut.tx_bit_pulse;
 end
 
 
@@ -85,8 +87,8 @@ dut dut1(dut_in1,dut_out1,uart_in1,uart_out1);
 
 
 initial begin
-    dut1.uart_dut.tx_fifo_wp = 5'd0;
-    dut1.uart_dut.wb_start_read_d1 = 1'd0;
+    //dut1.uart_dut.tx_fifo_wp = 5'd0;
+    //dut1.uart_dut.wb_start_read_d1 = 1'd0;
     //dut1.uart_dut.i_wb_stb  = 0;
 end
 
