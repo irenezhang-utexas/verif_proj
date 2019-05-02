@@ -59,12 +59,22 @@ class UART_scoreboard extends uvm_scoreboard;
 
     task run();
         forever begin
-            fifo_in_1.get(tx_in_1);
-            fifo_out_1.get(tx_out_1);
-            compare_1();
+            //fork needed
 
+
+
+            //`uvm_info(" I am in scoreboard", "\n", UVM_LOW);
+            //fifo_in_1.get(tx_in_1);
+            //`uvm_info(" I am in scoreboard2", "\n", UVM_LOW);
+            //fifo_out_1.get(tx_out_1);
+            //`uvm_info(" get_fifo", "\n", UVM_LOW);
+            //compare_1();
+
+            `uvm_info(" I am in scoreboard", "\n", UVM_LOW);
             fifo_in_2.get(tx_in_2);
+            `uvm_info(" I am in scoreboard2", "\n", UVM_LOW);
             fifo_out_2.get(tx_out_2);
+            `uvm_info(" get_fifo", "\n", UVM_LOW);
             compare_2();
         end
     endtask: run
@@ -78,36 +88,36 @@ endclass: UART_scoreboard
 
 function void UART_scoreboard::compare_1;
    
-    if (tx_in_1.i_wb_dat[7:0] == tx_out_1.tx_frame[10:3]) begin
-        tx_in_1.convert2string();
-        tx_out_1.convert2string();
+    if (tx_in_1.i_wb_dat[7:0] == tx_out_1.tx_frame[8:1]) begin
+        //tx_in_1.convert2string();
+        //tx_out_1.convert2string();
         `uvm_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
         `uvm_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
-        `uvm_info("The result is matched ", "", UVM_LOW);
+        `uvm_info("The result is matched ", "\n", UVM_LOW);
     end
     else begin
-        tx_in_1.convert2string();
-        tx_out_1.convert2string();
+        //tx_in_1.convert2string();
+        //tx_out_1.convert2string();
         `uvm_info("Input is: ", tx_in_1.convert2string(), UVM_LOW);
         `uvm_info("Output is: ", tx_out_1.convert2string(), UVM_LOW);
-        `uvm_info("The result is not matched!!!" ,"", UVM_LOW);
+        `uvm_info("The result is not matched!!!" ,"\n", UVM_LOW);
     end
 endfunction
 
 function void UART_scoreboard::compare_2;
 
     if (tx_in_2.payload == tx_out_2.o_wb_dat[7:0]) begin
-        tx_in_2.convert2string();
-        tx_out_2.convert2string();
+        //tx_in_2.convert2string();
+        //tx_out_2.convert2string();
         `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
         `uvm_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
-        `uvm_info("The result is matched", "", UVM_LOW);
+        `uvm_info("The result is matched", "\n", UVM_LOW);
     end
     else begin
-        tx_in_2.convert2string();
-        tx_out_2.convert2string();
+        //tx_in_2.convert2string();
+        //tx_out_2.convert2string();
         `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
         `uvm_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
-        `uvm_info("The result is not matched!!!", "", UVM_LOW);
+        `uvm_info("The result is not matched!!!", "\n", UVM_LOW);
     end
 endfunction

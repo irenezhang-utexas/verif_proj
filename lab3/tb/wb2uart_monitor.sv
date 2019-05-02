@@ -27,16 +27,28 @@ class wb2uart_monitor extends uvm_monitor;
       begin
         wb2uart tx;
         @(posedge dut_vi_in.i_clk);
-        tx = wb2uart::type_id::create("tx");
-        // assign them to the transaction "tx"
-	//tx.i_clk	= dut_vi_in.i_clk;
-	tx.i_wb_addr_hi	= dut_vi_in.i_wb_adr[31:16];
-    tx.i_wb_addr_lo   = dut_vi_in.i_wb_adr[15:0];
-	tx.i_wb_we	= dut_vi_in.i_wb_we;
-	tx.i_wb_dat	= dut_vi_in.i_wb_dat;
-	tx.i_wb_stb	= dut_vi_in.i_wb_stb;
-	
+        //print information to trigger monitor
+        /*if(dut_vi_in.i_wb_stb)begin
+          `uvm_info("trigger_wb2uart_monitor", "\n-----------------trigger_wb2uart_monitor-------------------------\n", UVM_LOW);
+          `uvm_info("i_wb_we", $sformatf("%d",dut_vi_in.i_wb_we), UVM_LOW);
+          `uvm_info("tx_fifo_full", $sformatf("%d",~$root.top.dut1.uart_dut.tx_fifo_full), UVM_LOW);
+          `uvm_info("i_wb_stb", $sformatf("%d",dut_vi_in.i_wb_stb), UVM_LOW);
+        end*/
+        //monitor will be triggered if it is a write operation
+        if((dut_vi_in.i_wb_we && (~$root.top.dut1.uart_dut.tx_fifo_full)) && (dut_vi_in.i_wb_stb)) begin
+            `uvm_info("wb2uart_monitor", "\n-----------------wb2uart_monitor-------------------------\n", UVM_LOW);
+            //`uvm_info("i_wb_dat", $sformatf("%b",dut_vi_in.i_wb_dat), UVM_LOW);
+            tx = wb2uart::type_id::create("tx");
+            // assign them to the transaction "tx"
+            //tx.i_clk  = dut_vi_in.i_clk;
+            tx.i_wb_addr_hi = dut_vi_in.i_wb_adr[31:16];
+            tx.i_wb_addr_lo   = dut_vi_in.i_wb_adr[15:0];
+            tx.i_wb_we  = dut_vi_in.i_wb_we;
+            tx.i_wb_dat = dut_vi_in.i_wb_dat;
+            tx.i_wb_stb = dut_vi_in.i_wb_stb;
+    
         aport.write(tx);
+        end
       end
     endtask: run_phase
 

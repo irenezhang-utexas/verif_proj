@@ -22,7 +22,6 @@ endinterface: dut_out
 
 interface uart_in;
     logic		i_uart_clk;
-    logic		i_uart_cts_n;
     logic		i_uart_rxd;
     logic       o_uart_rts_n;
 endinterface: uart_in
@@ -30,6 +29,7 @@ endinterface: uart_in
 interface uart_out;
     logic		i_uart_clk;
     logic		o_uart_txd;
+    logic       i_uart_cts_n;
 
 endinterface: uart_out
 

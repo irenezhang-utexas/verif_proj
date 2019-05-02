@@ -21,7 +21,7 @@ class uart_monitor_in extends uvm_monitor;
 
         assert( uvm_config_db #(uart_dut_config)::get(this, "", "uart_dut_config", dut_config_0) );
 
-        uart_vi_in=dut_config_0.dut_vi_in;
+        uart_vi_in=dut_config_0.uart_vi_in;
 
     endfunction: build_phase
 
@@ -39,7 +39,7 @@ class uart_monitor_in extends uvm_monitor;
 
         //driver start sampling the frame from outside
         wait(!uart_vi_in.o_uart_rts_n);
-
+        `uvm_info("uart_monitor", "\n--------------------------uart_monitor------------------------------\n", UVM_LOW);
         while(monitor_counter < 10) begin
             @(posedge uart_vi_in.i_uart_clk)
                 //sending start bity
