@@ -1,7 +1,7 @@
 
 `include "system_config_defines.vh"
 `include "register_addresses.vh"
-`define AMBER_UART_BAUD 230400
+//`define AMBER_UART_BAUD 230400
 
 module uart  (
 input                       i_clk,
@@ -47,7 +47,7 @@ TX_STATE_RANGE: assert property(@(posedge clk) txd_state <= 4'd12 );
 // 2.1.3 TODO: check tx_state no deadlock
 
 // 2.1.4 FIFO no change when full
-TX_FIFO_FULL: assert property (@(posedge clk) tx_fifo_full |=> (tx_fifo_wp == $past(tx_fifo_wp,1));
+TX_FIFO_FULL: assert property (@(posedge clk) tx_fifo_full |=> (tx_fifo_wp == $past(tx_fifo_wp,1)));
 
 // 2.2 rx FIFO
 // 2.2.1 check rx_state sequence
@@ -121,7 +121,7 @@ RX_RPTR_CHANGE: assert property ( @(posedge clk) rx_fifo_wp - $past(rx_fifo_wp,1
 
 // 2.3.3 check rx_fifo_pop on addr == AMBER_UART_DR
 RX_FIFO_POP0: assert property ( @(posedge clk) rx_fifo_rp != $past(rx_fifo_rp,1) |-> $past(i_wb_stb,2) && ~$past(i_wb_we,2));
-RX_FIFO_POP1: assert property ( @(posedge clk) rx_fifo_rp != $past(rx_fifo_rp,1) |-> $past(i_wb_adr,1)[15:0] == AMBER_UART_DR);
+RX_FIFO_POP1: assert property ( @(posedge clk) rx_fifo_rp != $past(rx_fifo_rp,1) |-> $past(i_wb_adr,1) == AMBER_UART_DR[15:0]);
 
 // 2.3.4 check tx_fifo_push on addr == AMBER_UART_DR
 TX_FIFO_POP0: assert property ( @(posedge clk) tx_fifo_wp != $past(tx_fifo_wp,1) |-> $past(i_wb_stb,2) && $past(i_wb_we,2));
