@@ -6,7 +6,7 @@
 parameter WB_DWIDTH = 32;
 parameter WB_SWIDTH = 4;
 
-module uart  (
+module uart_jg  (
 input                       i_clk,
 
 input       [31:0]          i_wb_adr,
@@ -93,6 +93,7 @@ reg   [3:0]     uart0_cts_n_d = 4'hf;
 reg             tx_interrupt = 'd0;
 reg             rx_interrupt = 'd0;
 reg   [4:0]     rxd_d = 5'h1f;
+reg             txd = 1'd1;
 
 // Wishbone interface
 reg  [31:0]     wb_rdata32 = 'd0;
@@ -127,11 +128,11 @@ NO_INTERRUPT: assume property (@(posedge i_clk) (i_wb_adr[15:0] == AMBER_UART_CR
 // 2.1 tx FIFO
 
 // 2.1.1 check tx_state sequence
-TX_STATE0: assert property(@(posedge i_clk) (txd_state == TXD_IDLE) |=> (txd_state == TXD_IDLE) || (txd_state == TXD_START));
+TX_STATE0: assert property(@(posedge i_clk) (txd_state == TXD_IDLE) |=> (txd_state == TXD_IDLE) || (txd_state == TXD_START)); // what about if statement ????
 
 TX_STATE1to11: assert property(@(posedge i_clk) (txd_state > TXD_IDLE) && (txd_state < TXD_STOP3) |=> (txd_state == $past(txd_state,1))|| (txd_state == ($past(txd_state,1) + 4'd1)));
 
-TX_STATE_12: assert property(@(posedge i_clk) (txd_state == TXD_STOP3) |=> (txd_state == TXD_STOP3) || (txd_state == TXD_IDLE));
+TX_STATE_12: assert property(@(posedge i_clk) (txd_state == TXD_STOP3) |=> ((txd == 1'd1) && (txd_state == TXD_IDLE)));
 
 // 2.1.2 check tx_state range
 TX_STATE_RANGE: assert property(@(posedge i_clk) txd_state <= 4'd12 );
@@ -338,9 +339,41 @@ FR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_FR));
 IIR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_IIR));
 ICR_ADR: cover property ( (i_wb_adr[15:0] == AMBER_UART_ICR));
 
+endmodule
 
 
 
+
+
+module Wrapper;
+
+bind uart uart_jg uart_jg1 (
+
+	.i_clk(i_clk),
+	.i_wb_adr(i_wb_adr),
+	.i_wb_sel(i_wb_sel),
+	.i_wb_we(i_wb_we),
+	.o_wb_dat(o_wb_dat),
+	.i_wb_dat(i_wb_dat),
+	.i_wb_cyc(i_wb_cyc),
+	.i_wb_stb(i_wb_stb),
+	.o_wb_ack(o_wb_ack),
+	.o_wb_err(o_wb_err),
+	.o_uart_int(o_uart_int),
+        .i_uart_cts_n(i_uart_cts_n),   
+        .o_uart_txd(o_uart_txd),     
+        .o_uart_rts_n(o_uart_rts_n),  
+        .i_uart_rxd(i_uart_rxd),    
+	.txd_state(txd_state),
+	.rxd_state(rxd_state)
+);
 
 endmodule
+
+
+
+
+
+
+
 
