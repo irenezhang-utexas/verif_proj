@@ -13,7 +13,7 @@ elaborate -top uart
 clock i_clk
 
 #Set Reset
-reset -none
+reset -non_resettable_regs 0
 
 #Prove all
 prove -bg -all

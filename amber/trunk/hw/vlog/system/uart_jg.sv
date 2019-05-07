@@ -96,23 +96,23 @@ TX_STATE1to11: assert property(@(posedge i_clk) (uart.txd_state > TXD_IDLE) && (
 TX_STATE_12: assert property(@(posedge i_clk) (uart.txd_state == TXD_STOP3) |=> ((uart.txd_state == TXD_STOP3) || (uart.txd_state == TXD_IDLE)));
 
 // 2.1.2 check tx_state range
-//TX_STATE_RANGE: assert property(@(posedge i_clk) uart.txd_state <= 4'd12 ); // ???????????
+TX_STATE_RANGE: assert property(@(posedge i_clk) uart.txd_state <= 4'd12 ); // ???????????
 
 // 2.1.3 TODO: check tx_state no deadlock
 
 // 2.1.4 FIFO no change when full
-TX_FIFO_FULL: assert property (@(posedge i_clk) (uart.tx_fifo_full |=> (uart.tx_fifo_wp == $past(uart.tx_fifo_wp,1))));
+TX_FIFO_FULL: assert property (@(posedge i_clk) (uart.tx_fifo_full && uart.fifo_enable |=> (uart.tx_fifo_wp == $past(uart.tx_fifo_wp,1))));
 
 // 2.2 rx FIFO
 // 2.2.1 check rx_state sequence
 RX_STATE0: assert property(@(posedge i_clk) (uart.rxd_state == RXD_IDLE) |=> (uart.rxd_state == RXD_IDLE) || (uart.rxd_state == RXD_START));
 
-//RX_STATE1to11: assert property(@(posedge i_clk) ((uart.rxd_state > RXD_IDLE) && (uart.rxd_state < RXD_STOP)) |=> ((uart.rxd_state == $past(uart.rxd_state,1))|| (uart.rxd_state == ($past(uart.rxd_state,1) + 4'd1)))); // ???????????????
+RX_STATE1to11: assert property(@(posedge i_clk) ((uart.rxd_state > RXD_IDLE) && (uart.rxd_state < RXD_STOP)) |=> ((uart.rxd_state == $past(uart.rxd_state,1))|| (uart.rxd_state == ($past(uart.rxd_state,1) + 4'd1)))); // ???????????????
 
 RX_STATE_12: assert property(@(posedge i_clk) (uart.rxd_state == RXD_STOP) |=> (uart.rxd_state == RXD_STOP) || (uart.rxd_state == RXD_IDLE));
 
 // 2.2.2 check rx_state range
-//RX_STATE_RANGE: assert property(@(posedge i_clk) uart.rxd_state <= 4'd12 ); // ???????????????
+RX_STATE_RANGE: assert property(@(posedge i_clk) uart.rxd_state <= 4'd12 ); // ???????????????
 
 // 2.2.3 TODO: check rx_state no deadlock
 
@@ -127,68 +127,56 @@ RX_FIFO_FULL2: assert property (@(posedge i_clk)  ((uart.rxd_state == RXD_IDLE) 
 // 2.2.5.1 rx_full & rx_empty
 
 // 2.2.5.1.1 rx_full and rx_empty not asserted at the same time
-//RX_FULL_EMPTY: assert property(@(posedge i_clk)  ((uart.fifo_enable == 1) && ~(uart.rx_fifo_empty && uart.rx_fifo_full))); // ??????????? no reset 
+RX_FULL_EMPTY: assert property(@(posedge i_clk)  ~(uart.rx_fifo_empty && uart.rx_fifo_full)); 
 
 // 2.2.5.1.2 rise rx_full only on push
-RX_FULL_ROSE_ON_PUSH: assert property (@(posedge i_clk) $rose(uart.rx_fifo_full) |-> ($past(uart.rx_fifo_push,1) || $past(uart.fifo_enable,1))); // ????????????? no reset
+RX_FULL_ROSE_ON_PUSH: assert property (@(posedge i_clk) ~uart.rx_fifo_full ##1 uart.rx_fifo_full |=> ($past(uart.rx_fifo_push,2) || $past(uart.fifo_enable,2))); 
 
 // 2.2.5.1.3 fell rx_full only on pop
-RX_FULL_FELL_ON_POP: assert property (@(posedge i_clk) $fell(uart.rx_fifo_full) |-> $past(uart.rx_fifo_pop,1) || $past(uart.fifo_enable,1)); // ????????????? no reset
+RX_FULL_FELL_ON_POP: assert property (@(posedge i_clk) uart.rx_fifo_full ##1 ~uart.rx_fifo_full |=> $past(uart.rx_fifo_pop,2) || $past(uart.fifo_enable,2)); 
 
 
 // 2.2.5.1.4 rose rx_empty only on pop
-RX_FULL_ROSE_ON_POP: assert property (@(posedge i_clk) $rose(uart.rx_fifo_empty) |-> $past(uart.rx_fifo_pop,1) || $past(uart.fifo_enable,1)); // ????????????? no reset 
+RX_EMPTY_ROSE_ON_POP: assert property (@(posedge i_clk) ~uart.rx_fifo_empty ##1 uart.rx_fifo_empty |=> $past(uart.rx_fifo_pop,2) || $past(uart.fifo_enable,2)); 
 
 // 2.2.5.1.5 fell rx_empty only on push
-RX_FULL_FELL_ON_PUSH: assert property (@(posedge i_clk) $fell(uart.rx_fifo_empty) |-> $past(uart.rx_fifo_push,1) || $past(uart.fifo_enable,1)); // ???????????????? no reset
+RX_EMPTY_FELL_ON_PUSH: assert property (@(posedge i_clk) uart.rx_fifo_empty ##1 ~uart.rx_fifo_empty |=> $past(uart.rx_fifo_push,2) || $past(uart.fifo_enable,2));
 
 // 2.2.5.2 tx_full & rx_empty
 
 // 2.2.5.2.1 tx_full and tx_empty not asserted at the same time
-//TX_FULL_EMPTY: assert property(@(posedge i_clk) ~(uart.tx_fifo_empty && uart.tx_fifo_full)); // reset
+TX_FULL_EMPTY: assert property(@(posedge i_clk) ~(uart.tx_fifo_empty && uart.tx_fifo_full)); // reset
 
 // 2.2.5.1.2 rise rx_full only on push
-TX_FULL_ROSE_ON_PUSH: assert property (@(posedge i_clk) $rose(uart.tx_fifo_full) |-> $past(uart.tx_fifo_push,1) || $past(uart.fifo_enable,1)); // reset
+TX_FULL_ROSE_ON_PUSH: assert property (@(posedge i_clk) ~uart.tx_fifo_full ##1 uart.tx_fifo_full |=> $past(uart.tx_fifo_push,2) || $past(uart.fifo_enable,2));
 
 // 2.2.5.1.3 fell rx_full only on pop
-TX_FULL_FELL_ON_POP: assert property (@(posedge i_clk) $fell(uart.tx_fifo_full) |-> $past(uart.tx_fifo_pop_not_empty ,1) || $past(uart.fifo_enable,1)); // reset
+TX_FULL_FELL_ON_POP: assert property (@(posedge i_clk) uart.tx_fifo_full ##1 ~uart.tx_fifo_full |=> $past(uart.tx_fifo_pop_not_empty ,2) || $past(uart.fifo_enable,2) || $past(uart.fifo_enable,1));
 
 // 2.2.5.1.4 rose rx_empty only on pop
-TX_FULL_ROSE_ON_POP: assert property (@(posedge i_clk) $rose(uart.tx_fifo_empty) |-> $past(uart.tx_fifo_pop_not_empty ,1) || $past(uart.fifo_enable,1)); // reset
+TX_EMPTY_ROSE_ON_POP: assert property (@(posedge i_clk) ~uart.tx_fifo_empty ##1 uart.tx_fifo_empty |=> $past(uart.tx_fifo_pop_not_empty,2) || $past(uart.fifo_enable,2) || $past(uart.fifo_enable,1));
 
 // 2.2.5.1.5 fell rx_empty only on push
-TX_FULL_FELL_ON_PUSH: assert property (@(posedge i_clk) $fell(uart.tx_fifo_empty) |-> $past(uart.tx_fifo_push,1) || $past(uart.fifo_enable,1)); // reset
+TX_EMPTY_FELL_ON_PUSH: assert property (@(posedge i_clk) uart.tx_fifo_empty ##1 ~uart.tx_fifo_empty |=> $past(uart.tx_fifo_push,2) || $past(uart.fifo_enable,2)); 
 
 // 2.3 pointers
 
 // 2.3.1 check tx_fifo_wp
 // 2.3.1.1 pointer change < 2
-TX_RPTR_CHANGE: assert property ( @(posedge i_clk) uart.rx_fifo_wp |=> ((uart.rx_fifo_wp - $past(uart.rx_fifo_wp,1)) < 2) || ($past(uart.rx_fifo_wp,1) == 5'h1f)); 
-TX_WPTR_CHANGE: assert property ( @(posedge i_clk) uart.tx_fifo_wp |=> ((uart.tx_fifo_wp - $past(uart.tx_fifo_wp,1)) < 2)); 
+TX_RPTR_CHANGE: assert property ( @(posedge i_clk) uart.tx_fifo_rp |=> ((uart.tx_fifo_rp - $past(uart.tx_fifo_rp,1)) < 2) || ($past(uart.tx_fifo_rp,1) == 5'h1f) || ~$past(uart.fifo_enable,1)); 
+TX_WPTR_CHANGE: assert property ( @(posedge i_clk) uart.tx_fifo_wp |=> ((uart.tx_fifo_wp - $past(uart.tx_fifo_wp,1)) < 2) || ~$past(uart.fifo_enable,1)); 
 
 // 2.3.2 check rx_fifo_wp
 // 2.3.2.1 pointer change < 2
-RX_WPTR_CHANGE: assert property ( @(posedge i_clk) (uart.rx_fifo_rp - $past(uart.rx_fifo_rp,1)) < 2); 
-RX_RPTR_CHANGE: assert property ( @(posedge i_clk) (uart.rx_fifo_wp - $past(uart.rx_fifo_wp,1)) < 2); 
+RX_RPTR_CHANGE: assert property ( @(posedge i_clk) uart.rx_fifo_rp |=> ((uart.rx_fifo_rp - $past(uart.rx_fifo_rp,1)) < 2) || ($past(uart.rx_fifo_rp,1) == 5'h1f) || ~$past(uart.fifo_enable,1)); 
+RX_WPTR_CHANGE: assert property ( @(posedge i_clk) uart.rx_fifo_wp |=> ((uart.rx_fifo_wp - $past(uart.rx_fifo_wp,1)) < 2) || ~$past(uart.fifo_enable,1)); 
 
-// 2.3.3 check rx_fifo_pop on addr == AMBER_UART_DR
-RX_FIFO_POP0: assert property ( @(posedge i_clk) uart.rx_fifo_rp != $past(uart.rx_fifo_rp,1) |-> $past(uart.i_wb_stb,2) && ~$past(i_wb_we,2));
-RX_FIFO_POP1: assert property ( @(posedge i_clk) uart.rx_fifo_rp != $past(uart.rx_fifo_rp,1) |-> $past(uart.i_wb_adr,1) == AMBER_UART_DR[15:0]);
-
-// 2.3.4 check tx_fifo_push on addr == AMBER_UART_DR
-TX_FIFO_POP0: assert property ( @(posedge i_clk) uart.tx_fifo_wp != $past(uart.tx_fifo_wp,1) |-> $past(i_wb_stb,2) && $past(i_wb_we,2));
-TX_FIFO_POP1: assert property ( @(posedge i_clk) uart.tx_fifo_wp != $past(uart.tx_fifo_wp,1) |-> $past(i_wb_adr,1) == AMBER_UART_DR[15:0]);
 
 // 2.4.5 check fifo not enabled
 // 2.4.5.1 wr ptrs no change
 FIFO_DIS_WR_PTR0: assert property ( @(posedge i_clk) !uart.fifo_enable |=> uart.tx_fifo_wp == 0);
 FIFO_DIS_WR_PTR1: assert property ( @(posedge i_clk) !uart.fifo_enable |=> uart.tx_fifo_rp == 0);
 FIFO_DIS_WR_CNT: assert property ( @(posedge i_clk) !uart.fifo_enable |=> uart.tx_fifo_count == 0);
-
-// 2.4.5.2 rd ptrs no change
-FIFO_DIS_RD_PTR0: assert property ( @(posedge i_clk) !uart.fifo_enable |=> uart.rx_fifo_wp == 0);
-FIFO_DIS_RD_PTR1: assert property ( @(posedge i_clk) !uart.fifo_enable |=> uart.rx_fifo_rp == 0);
-FIFO_DIS_RD_CNT: assert property ( @(posedge i_clk) !uart.fifo_enable |=> uart.rx_fifo_count == 0);
 
 // 2.4 data correctness
 
@@ -202,8 +190,8 @@ AMBER_UART_LCRH_WR: assert property (@(posedge i_clk) wr_data_check(AMBER_UART_L
 AMBER_UART_LCRM_WR: assert property (@(posedge i_clk) wr_data_check(AMBER_UART_LCRM) |=> uart.uart_lcrm_reg[7:0] == $past(uart.wb_wdata32[7:0],1));
 AMBER_UART_LCRL_WR: assert property (@(posedge i_clk) wr_data_check(AMBER_UART_LCRL) |=> uart.uart_lcrl_reg[7:0] == $past(uart.wb_wdata32[7:0],1));
 AMBER_UART_CR_WR: assert property (@(posedge i_clk) wr_data_check(AMBER_UART_CR) |=> uart.uart_cr_reg[7:0] == $past(uart.wb_wdata32[7:0],1));
-TX_FIFO_WR0: assert property (@(posedge i_clk) uart.tx_fifo_push_not_full && uart.fifo_enable |=> uart.tx_fifo[uart.tx_fifo_wp[3:0]] == uart.wb_wdata32[7:0]);
-TX_FIFO_WR1: assert property (@(posedge i_clk) uart.tx_fifo_push_not_full && uart.fifo_enable |=> uart.tx_fifo[0] == uart.wb_wdata32[7:0]);
+TX_FIFO_WR0: assert property (@(posedge i_clk) uart.tx_fifo_push_not_full && uart.fifo_enable |=> uart.tx_fifo[$past(uart.tx_fifo_wp[3:0],1)] == $past(uart.wb_wdata32[7:0],1));
+TX_FIFO_WR1: assert property (@(posedge i_clk) uart.tx_fifo_push_not_full && ~(uart.fifo_enable) |=> uart.tx_fifo[0] == $past(uart.wb_wdata32[7:0],1));
 
 
 
