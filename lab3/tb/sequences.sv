@@ -23,7 +23,7 @@ import uart_pkg::*;
        } 
         constraint wb {
             //i_wb_we dist {1:= 80, 0 := 15};
-            i_wb_we == 1;
+            i_wb_we == 0;
        } 
         /*constraint uart_fifo_enable{
             i_wb_addr_lo == AMBER_UART_LCRH;
@@ -65,6 +65,10 @@ import uart_pkg::*;
 	function new(string name = "");
 	    super.new(name);
 	endfunction
+
+    function string convert2string;
+            convert2string={$sformatf("start_bit: %b, payload: %b\n",start_bit,payload)};
+        endfunction: convert2string
 
     endclass: uart_rx_frame
 

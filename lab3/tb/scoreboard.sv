@@ -59,18 +59,13 @@ class UART_scoreboard extends uvm_scoreboard;
 
     task run();
         forever begin
-            //fork needed
-
-
-
-            //`uvm_info(" I am in scoreboard", "\n", UVM_LOW);
+            `uvm_info(" I am in scoreboard", "\n", UVM_LOW);
             //fifo_in_1.get(tx_in_1);
             //`uvm_info(" I am in scoreboard2", "\n", UVM_LOW);
             //fifo_out_1.get(tx_out_1);
             //`uvm_info(" get_fifo", "\n", UVM_LOW);
             //compare_1();
 
-            `uvm_info(" I am in scoreboard", "\n", UVM_LOW);
             fifo_in_2.get(tx_in_2);
             `uvm_info(" I am in scoreboard2", "\n", UVM_LOW);
             fifo_out_2.get(tx_out_2);

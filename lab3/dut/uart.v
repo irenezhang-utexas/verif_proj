@@ -170,10 +170,10 @@ wire            tx_fifo_half_or_less_full;
 wire            tx_fifo_push;
 wire            tx_fifo_push_not_full;
 wire            tx_fifo_pop_not_empty;
-reg   [4:0]     tx_fifo_wp = 'd0;
-reg   [4:0]     tx_fifo_rp = 'd0;
-reg   [4:0]     tx_fifo_count = 'd0;   // number of entries in the fifo
-reg             tx_fifo_full_flag = 'd0;
+reg   [4:0]     tx_fifo_wp = 5'd0;
+reg   [4:0]     tx_fifo_rp = 5'd0;
+reg   [4:0]     tx_fifo_count = 5'd0;   // number of entries in the fifo
+reg             tx_fifo_full_flag = 1'd0;
 
 reg   [7:0]     rx_fifo    [0:15];
 reg             rx_fifo_empty = 1'd1;
@@ -268,12 +268,16 @@ always @ ( posedge i_clk )
         // RX FIFO Push
         if ( rx_fifo_push_not_full )
             begin
-            rx_fifo[rx_fifo_wp[3:0]]    <= rx_byte;                
+            rx_fifo[rx_fifo_wp[3:0]]    <= rx_byte; 
+            //$display("rx_fifo_push = %b",rx_fifo[rx_fifo_wp[4:0]]);
+            //$display("rx_fifo_wp = %d",rx_fifo_wp[3:0]);               
             rx_fifo_wp                  <= rx_fifo_wp + 1'd1;
             end
 
         if ( rx_fifo_pop_not_empty )
             begin
+            //$display("rx_fifo_pop = %b",rx_fifo[rx_fifo_rp[3:0]]); 
+            //$display("rx_fifo_rp = %d",rx_fifo_rp[3:0]);
             rx_fifo_rp                  <= rx_fifo_rp + 1'd1;
             end
             
@@ -380,13 +384,19 @@ always @( posedge i_clk )
             begin
             tx_fifo[tx_fifo_wp[3:0]] <= wb_wdata32[7:0];
             tx_fifo_wp <= tx_fifo_wp + 1'd1;
+            $display("fifopush = %b",wb_wdata32[7:0]);
+            $display("fifopush = %b",tx_fifo_wp[4:0]);
             end
         
             
         // Pop    
-        if ( tx_fifo_pop_not_empty )
+        /*if ( tx_fifo_pop_not_empty )
+            tx_fifo_rp <= tx_fifo_rp + 1'd1;*/
+            if ( tx_fifo_pop_not_empty ) begin
             tx_fifo_rp <= tx_fifo_rp + 1'd1;
-            
+            $display("fifopop = %b",tx_fifo[tx_fifo_rp[3:0]]);
+            $display("tx_fifo_rp = %b",tx_fifo_rp);
+        end
         // Count up 
         if (tx_fifo_push_not_full && !tx_fifo_pop_not_empty)
             tx_fifo_count <= tx_fifo_count + 1'd1;
@@ -434,6 +444,8 @@ always @( posedge i_clk )
         begin
         tx_bit_pulse_count <= 'd0;
         tx_bit_pulse       <= 1'd1;
+        //$display("-----------------------bit_counter = %d -------- ",`AMBER_CLK_DIVIDER);
+
         end
     else
         begin

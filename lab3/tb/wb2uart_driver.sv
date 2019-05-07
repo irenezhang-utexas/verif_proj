@@ -20,7 +20,7 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
       //reset
       dut_vi_in.i_wb_stb  = 0;
 
-      repeat(2)@(posedge dut_vi_in.i_clk);
+      repeat(200)@(posedge dut_vi_in.i_clk);
       forever
       begin
         wb2uart tx;
@@ -47,7 +47,7 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
 
 
 
-       /* if((~$root.top.dut1.uart_dut.tx_fifo_full) && tx.i_wb_we && tx.i_wb_stb)begin
+        if((~$root.top.dut1.uart_dut.tx_fifo_full) && tx.i_wb_we && tx.i_wb_stb)begin
           `uvm_info("sent_wb_frame", "\n-----------------sent_wb_frame-------------------------\n", UVM_LOW);
           //`uvm_info("i_wb_dat", $sformatf("%b",tx.i_wb_dat), UVM_LOW);
           `uvm_info("tx fifo count", $sformatf("%d",$root.top.dut1.uart_dut.tx_fifo_wp), UVM_LOW);
@@ -58,7 +58,7 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
           `uvm_info("wb_stb", $sformatf("%d",$root.top.dut1.uart_dut.i_wb_stb), UVM_LOW);
           `uvm_info("wb_start_write", $sformatf("%d",$root.top.dut1.uart_dut.wb_start_write), UVM_LOW);
           `uvm_info("wb_start_read_d1", $sformatf("%d",$root.top.dut1.uart_dut.wb_start_read_d1), UVM_LOW);
-        end*/
+        end
         repeat(2000) @(posedge dut_vi_in.i_clk);
 
 

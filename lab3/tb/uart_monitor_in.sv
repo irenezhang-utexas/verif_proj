@@ -31,33 +31,27 @@ class uart_monitor_in extends uvm_monitor;
         frame = uart_rx_frame::type_id::create("frame");
 
 
-    @(posedge uart_vi_in.i_uart_clk);
+    //@(posedge uart_vi_in.i_uart_clk);
+    @(posedge $root.top.dut1.uart_dut.i_clk)
       forever
       begin
 
         int monitor_counter = 0;
-
+          `uvm_info("uart_monitor", "\n--------------------------uart_monitor------------------------------\n", UVM_LOW);
         //driver start sampling the frame from outside
-        wait(!uart_vi_in.o_uart_rts_n);
-        `uvm_info("uart_monitor", "\n--------------------------uart_monitor------------------------------\n", UVM_LOW);
-        while(monitor_counter < 10) begin
+       wait(!uart_vi_in.o_uart_rts_n && !uart_vi_in.i_uart_rxd);
+        //repeat(1) @(posedge uart_vi_in.i_uart_clk);     
+        while(monitor_counter < 9) begin
             @(posedge uart_vi_in.i_uart_clk)
-                //sending start bity
-                if(monitor_counter == 0)begin
-                    frame.start_bit= uart_vi_in.i_uart_rxd;
-                end
-                //sending data
-                if ((monitor_counter > 0) && (monitor_counter < 9)) begin
-                    wait(uart_vi_in.o_uart_rts_n);
-                    frame.payload[monitor_counter-1] = uart_vi_in.i_uart_rxd;
+                if ((monitor_counter >= 0) && (monitor_counter < 8)) begin
+                   
+                    frame.payload[monitor_counter] = uart_vi_in.i_uart_rxd;
                 end
                 //sening stop
-                if (monitor_counter == 9) begin
-                    frame.stop_bits = uart_vi_in.i_uart_rxd;
-                end
+                `uvm_info("monitor_uart_data", $sformatf("monitor counter %d bit = %b",monitor_counter,uart_vi_in.i_uart_rxd), UVM_LOW);
                 monitor_counter++;
         end
-
+        `uvm_info("uart_monitor_frame", $sformatf("%b",frame.payload), UVM_LOW);
         aport.write(frame);
       end
     endtask: run_phase

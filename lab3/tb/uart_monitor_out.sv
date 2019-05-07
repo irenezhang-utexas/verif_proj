@@ -42,9 +42,9 @@ class uart_monitor_out extends uvm_monitor;
             if(tx_state != 4'd0)begin
                 tx_frame  = {uart_vi_out.o_uart_txd,tx_frame[11:1]};
                 uart_vi_out.i_uart_cts_n = 1;
-                //`uvm_info("tx_frame", $sformatf("data  %b",tx_frame), UVM_LOW);
-                //`uvm_info("getdata_from_uart", $sformatf("bit  %d",uart_vi_out.o_uart_txd), UVM_LOW);
-                //`uvm_info("uart_monitor_state", $sformatf("state  %d",tx_state), UVM_LOW);
+                `uvm_info("tx_frame", $sformatf("data  %b",tx_frame), UVM_LOW);
+                `uvm_info("getdata_from_uart", $sformatf("bit  %d",uart_vi_out.o_uart_txd), UVM_LOW);
+                `uvm_info("uart_monitor_state", $sformatf("state  %d",tx_state), UVM_LOW);
             end
             
 
@@ -56,7 +56,7 @@ class uart_monitor_out extends uvm_monitor;
          tx.tx_frame = tx_frame;
          tx_frame = 12'd0;
          aport.write(tx);
-         repeat(20) @(posedge uart_vi_out.i_uart_clk);
+         repeat(100) @(posedge uart_vi_out.i_uart_clk);
          uart_vi_out.i_uart_cts_n = 0;
         end
         
