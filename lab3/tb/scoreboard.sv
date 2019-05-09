@@ -27,6 +27,8 @@ class UART_scoreboard extends uvm_scoreboard;
     uart_rx_frame tx_in_2;
     uart2wb tx_out_2;
 
+    logic [7:0] payload;
+
 
     function new(string name, uvm_component parent);
         super.new(name,parent);
@@ -67,9 +69,10 @@ class UART_scoreboard extends uvm_scoreboard;
             //compare_1();
 
             fifo_in_2.get(tx_in_2);
-            `uvm_info(" I am in scoreboard2", "\n", UVM_LOW);
+            `uvm_info(" I am in scoreboard2", $sformatf("%b",tx_in_2.payload), UVM_LOW);
+            payload  = tx_in_2.payload;
             fifo_out_2.get(tx_out_2);
-            `uvm_info(" get_fifo", "\n", UVM_LOW);
+            `uvm_info(" get_fifo", $sformatf("%b",tx_in_2.payload), UVM_LOW);
             compare_2();
         end
     endtask: run
@@ -101,7 +104,7 @@ endfunction
 
 function void UART_scoreboard::compare_2;
 
-    if (tx_in_2.payload == tx_out_2.o_wb_dat[7:0]) begin
+    if (payload == tx_out_2.o_wb_dat[7:0]) begin
         //tx_in_2.convert2string();
         //tx_out_2.convert2string();
         `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);

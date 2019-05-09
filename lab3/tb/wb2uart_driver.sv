@@ -30,10 +30,10 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
           seq_item_port.get_next_item(tx);
           seq_item_port.item_done();
         
-          if(((tx.i_wb_we && (~$root.top.dut1.uart_dut.tx_fifo_full)) || (~tx.i_wb_we)) && (tx.i_wb_stb)) begin
+          if(((tx.i_wb_we && (~$root.top.dut1.uart_dut.tx_fifo_full)) || (~tx.i_wb_we && (~$root.top.dut1.uart_dut.rx_fifo_empty))) && (tx.i_wb_stb)) begin
             dut_vi_in.i_wb_adr = {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
-            dut_vi_in.i_wb_we  = tx.i_wb_we;
-            dut_vi_in.i_wb_stb = tx.i_wb_stb;
+            //dut_vi_in.i_wb_we  = tx.i_wb_we;
+            //dut_vi_in.i_wb_stb = tx.i_wb_stb;
             dut_vi_in.i_wb_dat = tx.i_wb_dat;
             @(posedge dut_vi_in.i_clk);
             `uvm_info("wb_start_read_d1", $sformatf("%b",$root.top.dut1.uart_dut.wb_start_read_d1), UVM_LOW);

@@ -58,15 +58,15 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
 
         while(bit_counter < 10) begin
             @(negedge uart_vi_in.i_uart_clk)
-            `uvm_info("rxd_state =", $sformatf("%d",$root.top.dut1.uart_dut.rxd_state), UVM_LOW);
+            //`uvm_info("rxd_state =", $sformatf("%d",$root.top.dut1.uart_dut.rxd_state), UVM_LOW);
                 //sending data
                 if ((bit_counter >= 0) && (bit_counter < 8)) begin
                     uart_vi_in.i_uart_rxd = req.payload[bit_counter];
-                    `uvm_info("sent_uart_frame", $sformatf("rx_bit counter %d bit = %b",bit_counter,req.payload[bit_counter]), UVM_LOW);
-                    `uvm_info("rx_byte =", $sformatf("%b",$root.top.dut1.uart_dut.rx_byte), UVM_LOW);
+                    //`uvm_info("sent_uart_frame", $sformatf("rx_bit counter %d bit = %b",bit_counter,req.payload[bit_counter]), UVM_LOW);
+                    //`uvm_info("rx_byte =", $sformatf("%b",$root.top.dut1.uart_dut.rx_byte), UVM_LOW);
                 end else begin
                     uart_vi_in.i_uart_rxd = req.stop_bits;
-                    `uvm_info("sent_uart_frame", $sformatf("rx_bit counter %d stop = %b",bit_counter,req.stop_bits), UVM_LOW);
+                    //`uvm_info("sent_uart_frame", $sformatf("rx_bit counter %d stop = %b",bit_counter,req.stop_bits), UVM_LOW);
                
                 end
                 
