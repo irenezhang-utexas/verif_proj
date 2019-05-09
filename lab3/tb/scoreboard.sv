@@ -61,7 +61,7 @@ class UART_scoreboard extends uvm_scoreboard;
 
     task run();
         forever begin
-            `uvm_info(" I am in scoreboard", "\n", UVM_LOW);
+            //`uvm_info(" I am in scoreboard", "\n", UVM_LOW);
             //fifo_in_1.get(tx_in_1);
             //`uvm_info(" I am in scoreboard2", "\n", UVM_LOW);
             //fifo_out_1.get(tx_out_1);
@@ -69,10 +69,10 @@ class UART_scoreboard extends uvm_scoreboard;
             //compare_1();
 
             fifo_in_2.get(tx_in_2);
-            `uvm_info(" I am in scoreboard2", $sformatf("%b",tx_in_2.payload), UVM_LOW);
+            //`uvm_info(" I am in scoreboard2", $sformatf("%b",tx_in_2.payload), UVM_LOW);
             payload  = tx_in_2.payload;
             fifo_out_2.get(tx_out_2);
-            `uvm_info(" get_fifo", $sformatf("%b",tx_in_2.payload), UVM_LOW);
+            //`uvm_info(" get_fifo", $sformatf("%b",tx_in_2.payload), UVM_LOW);
             compare_2();
         end
     endtask: run
@@ -107,14 +107,14 @@ function void UART_scoreboard::compare_2;
     if (payload == tx_out_2.o_wb_dat[7:0]) begin
         //tx_in_2.convert2string();
         //tx_out_2.convert2string();
-        `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
+        `uvm_info("Input is: ", $sformatf("%b",payload), UVM_LOW);
         `uvm_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
         `uvm_info("The result is matched", "\n", UVM_LOW);
     end
     else begin
         //tx_in_2.convert2string();
         //tx_out_2.convert2string();
-        `uvm_info("Input is: ", tx_in_2.convert2string(), UVM_LOW);
+        `uvm_info("Input is: ", $sformatf("%b",payload), UVM_LOW);
         `uvm_info("Output is: ", tx_out_2.convert2string(), UVM_LOW);
         `uvm_info("The result is not matched!!!", "\n", UVM_LOW);
     end

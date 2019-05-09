@@ -37,7 +37,7 @@ class uart_monitor_in extends uvm_monitor;
       begin
 
         int monitor_counter = 0;
-          `uvm_info("uart_monitor", "\n--------------------------uart_monitor------------------------------\n", UVM_LOW);
+          //`uvm_info("uart_monitor", "\n--------------------------uart_monitor------------------------------\n", UVM_LOW);
         //driver start sampling the frame from outside
        wait(!uart_vi_in.o_uart_rts_n && !uart_vi_in.i_uart_rxd);
         repeat(1) @(posedge uart_vi_in.i_uart_clk);     
@@ -51,7 +51,7 @@ class uart_monitor_in extends uvm_monitor;
                 //`uvm_info("monitor_uart_data", $sformatf("monitor counter %d bit = %b",monitor_counter,uart_vi_in.i_uart_rxd), UVM_LOW);
                 monitor_counter++;
         end
-        `uvm_info("uart_monitor_frame", $sformatf("%b",frame.payload), UVM_LOW);
+        //`uvm_info("uart_monitor_frame", $sformatf("%b",frame.payload), UVM_LOW);
         aport.write(frame);
       end
     endtask: run_phase

@@ -53,7 +53,8 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
         //`uvm_info("rx_fifo_value =", $sformatf("%b",$root.top.dut1.uart_dut.rx_fifo[$root.top.dut1.uart_dut.rx_fifo_wp[4:0]]), UVM_LOW);
 
         //wait untial o_uart_rts_o is low
-        `uvm_info("sent_uart_frame test", "\n", UVM_LOW);
+        //`uvm_info("sent_uart_frame test", "\n", UVM_LOW);
+        wait(!uart_vi_in.o_uart_rts_n)
         uart_vi_in.i_uart_rxd = req.start_bit;
 
         while(bit_counter < 10) begin
@@ -73,8 +74,8 @@ class uart_driver_in extends uvm_driver#(uart_rx_frame);
                 bit_counter++;
                 //uvm_info("driver_bit", $sformatf("driver %d",bit_counter), UVM_LOW);
         end
-        `uvm_info("uart_driver_frame =", $sformatf("%b",req.payload), UVM_LOW);
-        `uvm_info("rx_byte =", $sformatf("%b",$root.top.dut1.uart_dut.rx_byte), UVM_LOW);
+        //`uvm_info("uart_driver_frame =", $sformatf("%b",req.payload), UVM_LOW);
+        //`uvm_info("rx_byte =", $sformatf("%b",$root.top.dut1.uart_dut.rx_byte), UVM_LOW);
         //`uvm_info("i_wb_we", $sformatf("%b",$root.top.dut1.uart_dut.i_wb_we), UVM_LOW);
     endtask : sent_uart_frame
 

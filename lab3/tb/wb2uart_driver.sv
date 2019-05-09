@@ -31,16 +31,16 @@ class wb2uart_driver extends uvm_driver#(wb2uart);
           seq_item_port.item_done();
         
           if(((tx.i_wb_we && (~$root.top.dut1.uart_dut.tx_fifo_full)) || (~tx.i_wb_we && (~$root.top.dut1.uart_dut.rx_fifo_empty))) && (tx.i_wb_stb)) begin
-            dut_vi_in.i_wb_adr = {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
+            //dut_vi_in.i_wb_adr = {tx.i_wb_addr_hi,tx.i_wb_addr_lo};
             //dut_vi_in.i_wb_we  = tx.i_wb_we;
             //dut_vi_in.i_wb_stb = tx.i_wb_stb;
             dut_vi_in.i_wb_dat = tx.i_wb_dat;
             @(posedge dut_vi_in.i_clk);
-            `uvm_info("wb_start_read_d1", $sformatf("%b",$root.top.dut1.uart_dut.wb_start_read_d1), UVM_LOW);
+            /*`uvm_info("wb_start_read_d1", $sformatf("%b",$root.top.dut1.uart_dut.wb_start_read_d1), UVM_LOW);
             `uvm_info("tx_fifo_push_not_full", $sformatf("%d",$root.top.dut1.uart_dut.tx_fifo_push_not_full), UVM_LOW);
             `uvm_info("i_wb_dat", $sformatf("%b",$root.top.dut1.uart_dut.i_wb_dat), UVM_LOW);
             `uvm_info("i_wb_we", $sformatf("%b",$root.top.dut1.uart_dut.i_wb_we), UVM_LOW);
-            `uvm_info("o_wb_ack", $sformatf("%b",$root.top.dut1.uart_dut.o_wb_ack), UVM_LOW);
+            `uvm_info("o_wb_ack", $sformatf("%b",$root.top.dut1.uart_dut.o_wb_ack), UVM_LOW);*/
             repeat(1)@(negedge dut_vi_in.i_clk);
             dut_vi_in.i_wb_stb = 1'b0;
           end

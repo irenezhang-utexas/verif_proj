@@ -129,7 +129,7 @@ import uart_pkg::*;
 
                   //tx.fifo_full.constraint_mode(0); 
                   //tx.fifo_empty.constraint_mode(0); 
-                `uvm_info("general test", "\n--test--\n", UVM_LOW);
+                //`uvm_info("general test", "\n--test--\n", UVM_LOW);
 //		rx.randomize();
 //		`uvm_info("test:",$sformatf("rx=%b",rx.payload),UVM_LOW);
                 assert(rx.randomize());
@@ -194,7 +194,7 @@ import uart_pkg::*;
 
 	    // general test: uart always receives data; amber core always pops data
 	    `uvm_info("rx_test", "\n--------------------------start------------------------------\n", UVM_LOW);
-	    repeat(10)
+	    repeat(1000)
 	    begin
             //`uvm_info("general test", "counter", UVM_LOW);
             simple_rx seq;

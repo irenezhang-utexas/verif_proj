@@ -36,7 +36,7 @@ class wb2uart_monitor extends uvm_monitor;
         end*/
         //monitor will be triggered if it is a write operation
         if((dut_vi_in.i_wb_we && (~$root.top.dut1.uart_dut.tx_fifo_full)) && (dut_vi_in.i_wb_stb)) begin
-            `uvm_info("wb2uart_monitor", "\n-----------------wb2uart_monitor-------------------------\n", UVM_LOW);
+            //`uvm_info("wb2uart_monitor", "\n-----------------wb2uart_monitor-------------------------\n", UVM_LOW);
             //`uvm_info("i_wb_dat", $sformatf("%b",dut_vi_in.i_wb_dat), UVM_LOW);
             tx = wb2uart::type_id::create("tx");
             // assign them to the transaction "tx"
